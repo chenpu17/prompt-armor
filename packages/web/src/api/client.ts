@@ -72,7 +72,7 @@ export function streamEvaluation(id: string, on: (event: string, data: any) => v
 
 export function streamAutoRun(id: string, on: (event: string, data: any) => void) {
   const es = new EventSource(`/api/auto-runs/${id}/stream`);
-  ['init', 'start', 'phase', 'token', 'iter_start', 'iter_done', 'warn', 'stopped', 'done', 'error'].forEach(ev => {
+  ['init', 'start', 'phase', 'token', 'iter_start', 'iter_done', 'eval_progress', 'eval_finish', 'warn', 'stopped', 'done', 'error'].forEach(ev => {
     es.addEventListener(ev, (e: any) => {
       try { on(ev, JSON.parse(e.data)); } catch { on(ev, e.data); }
     });

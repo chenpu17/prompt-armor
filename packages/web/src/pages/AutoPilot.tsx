@@ -266,7 +266,7 @@ function RunDetail({ runId, onChanged }: { runId: string; onChanged: () => void 
   const nav = useNavigate();
   const [run, setRun] = useState<any>(null);
   const [iters, setIters] = useState<any[]>([]);
-  const [phase, setPhase] = useState<{ name: string; iter?: number; tokens?: number } | null>(null);
+  const [phase, setPhase] = useState<{ name: string; iter?: number; tokens?: number; evalTotal?: number; evalCompleted?: number } | null>(null);
   const [logs, setLogs] = useState<{ ts: number; type: string; text: string }[]>([]);
   const [scoreHistory, setScoreHistory] = useState<number[]>([]);
   const [done, setDone] = useState(false);
@@ -301,6 +301,17 @@ function RunDetail({ runId, onChanged }: { runId: string; onChanged: () => void 
         addLog('phase', `${data.iter_no ? `[第 ${data.iter_no} 轮] ` : ''}${PHASE_LABEL[data.phase] || data.phase}${data.message ? ' — ' + data.message : ''}`);
       }
       if (event === 'token') setPhase(p => ({ ...(p || { name: data.phase }), iter: data.iter_no, tokens: data.total }));
+      if (event === 'eval_progress') {
+        setPhase(p => ({
+          name: 'eval',
+          iter: data.iter_no,
+          evalTotal: data.total,
+          evalCompleted: data.completed ?? p?.evalCompleted ?? 0,
+        }));
+      }
+      if (event === 'eval_finish') {
+        setPhase(p => ({ ...(p || { name: 'eval' }), iter: data.iter_no, evalCompleted: p?.evalTotal }));
+      }
       if (event === 'iter_start') {
         addLog('info', `▶ 进入第 ${data.iter_no} 轮`);
       }
@@ -388,6 +399,17 @@ function RunDetail({ runId, onChanged }: { runId: string; onChanged: () => void 
                 <Loader2 size={12} className="animate-spin text-violet1" />
                 <span>{phase.iter ? `第 ${phase.iter} 轮 · ` : ''}{PHASE_LABEL[phase.name] || phase.name}</span>
                 {phase.tokens != null && <span className="text-violet-300">· {phase.tokens.toLocaleString()} tokens</span>}
+                {phase.evalTotal != null && (
+                  <span className="text-cyan-300 flex items-center gap-2">
+                    · 已评测 {phase.evalCompleted ?? 0} / {phase.evalTotal}
+                    <span className="inline-block w-24 h-1.5 rounded-full bg-slate-700/60 overflow-hidden align-middle">
+                      <span
+                        className="block h-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all duration-300"
+                        style={{ width: `${Math.min(100, ((phase.evalCompleted ?? 0) / Math.max(1, phase.evalTotal)) * 100)}%` }}
+                      />
+                    </span>
+                  </span>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

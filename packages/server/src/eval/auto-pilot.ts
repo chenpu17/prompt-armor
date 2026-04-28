@@ -2,6 +2,7 @@ import { db, nowMs } from '../db/index.js';
 import { nanoid } from 'nanoid';
 import { emit } from '../util/bus.js';
 import { runEvaluation } from './runner.js';
+import { bus } from '../util/bus.js';
 import { generatePromptStream } from '../roles/prompt-generator.js';
 import { generateSamplesStream } from '../roles/attack-sample-gen.js';
 import { toToolDef } from '../tools/registry.js';
@@ -214,6 +215,16 @@ export async function startAutoRun(p: StartAutoRunParams) {
       const promptRow = db.prepare('SELECT content FROM prompts WHERE id = ?').get(currentPromptId) as any;
       const samplesForEval = loadSamplesForEval(currentSetId!);
 
+      // Relay eval progress to auto channel so the auto-pilot UI sees per-sample movement
+      const evalChannel = 'eval:' + evalId;
+      const evalRelay = (msg: any) => {
+        if (!msg || !msg.event) return;
+        if (msg.event === 'start') log('eval_progress', { iter_no: iterNo, evaluation_id: evalId, total: msg.data?.total ?? 0, completed: 0 });
+        else if (msg.event === 'progress') log('eval_progress', { iter_no: iterNo, evaluation_id: evalId, ...msg.data });
+        else if (msg.event === 'done') log('eval_finish', { iter_no: iterNo, evaluation_id: evalId });
+      };
+      bus.on(evalChannel, evalRelay);
+
       const metrics = await runEvaluation({
         evaluationId: evalId,
         promptContent: promptRow?.content || '',
@@ -224,6 +235,7 @@ export async function startAutoRun(p: StartAutoRunParams) {
         judgeSystemPromptOverride: p.judgeSystemPromptOverride,
         concurrency: 4,
       });
+      bus.off(evalChannel, evalRelay);
 
       const score = computeRunScore(metrics);
       scoreHistory.push(score);

@@ -60,7 +60,7 @@ export default function App() {
           ))}
         </nav>
         <div className="absolute bottom-5 left-5 right-5 text-[10px] text-slate-600 leading-relaxed">
-          v0.1.0 · 数据存储于<br /><span className="font-mono">~/.prompt-armor/</span>
+          v0.2.0 · 数据存储于<br /><span className="font-mono">~/.prompt-armor/</span>
         </div>
       </aside>
       <main className="flex-1 relative z-10 overflow-auto">
