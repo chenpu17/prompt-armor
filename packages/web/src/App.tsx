@@ -1,5 +1,5 @@
 import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
-import { Shield, LayoutDashboard, Cpu, FileText, Target as TargetIcon, Wrench, PlayCircle, BarChart3, Settings as SettingsIcon } from 'lucide-react';
+import { Shield, LayoutDashboard, Cpu, FileText, Target as TargetIcon, Wrench, PlayCircle, BarChart3, Settings as SettingsIcon, Rocket } from 'lucide-react';
 import { useEffect } from 'react';
 import Dashboard from './pages/Dashboard';
 import Models from './pages/Models';
@@ -8,6 +8,7 @@ import Samples from './pages/Samples';
 import Tools from './pages/Tools';
 import EvalRun from './pages/EvalRun';
 import EvalReport from './pages/EvalReport';
+import AutoPilot from './pages/AutoPilot';
 import Settings from './pages/Settings';
 import ParticleBg from './components/ParticleBg';
 import { useStore } from './store';
@@ -20,6 +21,7 @@ const nav = [
   { to: '/tools', icon: Wrench, label: '工具集' },
   { to: '/eval', icon: PlayCircle, label: '运行评测' },
   { to: '/reports', icon: BarChart3, label: '评测报告' },
+  { to: '/auto', icon: Rocket, label: '自动优化' },
   { to: '/settings', icon: SettingsIcon, label: '系统设置' },
 ];
 
@@ -73,6 +75,8 @@ export default function App() {
           <Route path="/eval/:id" element={<EvalRun />} />
           <Route path="/reports" element={<EvalReport />} />
           <Route path="/reports/:id" element={<EvalReport />} />
+          <Route path="/auto" element={<AutoPilot />} />
+          <Route path="/auto/:id" element={<AutoPilot />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>

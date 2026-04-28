@@ -52,11 +52,27 @@ export const api = {
   getEvaluation: (id: string) => req(`/api/evaluations/${id}`),
   getEvaluationResults: (id: string) => req(`/api/evaluations/${id}/results`),
   startEvaluation: (b: any) => req('/api/evaluations', { method: 'POST', body: JSON.stringify(b) }),
+  // auto-runs
+  listAutoRuns: () => req('/api/auto-runs'),
+  getAutoRun: (id: string) => req(`/api/auto-runs/${id}`),
+  startAutoRun: (b: any) => req('/api/auto-runs', { method: 'POST', body: JSON.stringify(b) }),
+  stopAutoRun: (id: string) => req(`/api/auto-runs/${id}/stop`, { method: 'POST' }),
+  deleteAutoRun: (id: string) => req(`/api/auto-runs/${id}`, { method: 'DELETE' }),
 };
 
 export function streamEvaluation(id: string, on: (event: string, data: any) => void) {
   const es = new EventSource(`/api/evaluations/${id}/stream`);
   ['init', 'start', 'progress', 'done', 'error'].forEach(ev => {
+    es.addEventListener(ev, (e: any) => {
+      try { on(ev, JSON.parse(e.data)); } catch { on(ev, e.data); }
+    });
+  });
+  return () => es.close();
+}
+
+export function streamAutoRun(id: string, on: (event: string, data: any) => void) {
+  const es = new EventSource(`/api/auto-runs/${id}/stream`);
+  ['init', 'start', 'phase', 'token', 'iter_start', 'iter_done', 'warn', 'stopped', 'done', 'error'].forEach(ev => {
     es.addEventListener(ev, (e: any) => {
       try { on(ev, JSON.parse(e.data)); } catch { on(ev, e.data); }
     });

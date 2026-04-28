@@ -100,3 +100,42 @@ CREATE TABLE IF NOT EXISTS settings (
   value TEXT NOT NULL,
   updated_at INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS auto_runs (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  intent TEXT,
+  business_context TEXT,
+  generator_model_id TEXT,
+  attacker_model_id TEXT,
+  target_model_id TEXT,
+  judge_model_id TEXT,
+  max_iterations INTEGER NOT NULL DEFAULT 3,
+  pass_threshold REAL NOT NULL DEFAULT 0.95,
+  early_stop_patience INTEGER NOT NULL DEFAULT 2,
+  refresh_ratio REAL NOT NULL DEFAULT 0.3,
+  initial_set_size INTEGER NOT NULL DEFAULT 24,
+  current_iteration INTEGER DEFAULT 0,
+  status TEXT,
+  best_prompt_id TEXT,
+  best_score REAL,
+  config_json TEXT,
+  created_at INTEGER NOT NULL,
+  finished_at INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS auto_iterations (
+  id TEXT PRIMARY KEY,
+  run_id TEXT NOT NULL,
+  iter_no INTEGER NOT NULL,
+  prompt_id TEXT,
+  sample_set_id TEXT,
+  evaluation_id TEXT,
+  metrics_json TEXT,
+  notes TEXT,
+  status TEXT,
+  created_at INTEGER NOT NULL,
+  finished_at INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_auto_iters_run ON auto_iterations(run_id);

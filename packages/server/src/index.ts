@@ -12,6 +12,7 @@ import samplesRoute from './routes/samples.js';
 import toolsRoute from './routes/tools.js';
 import evaluationsRoute from './routes/evaluations.js';
 import settingsRoute from './routes/settings.js';
+import autoRunsRoute from './routes/auto-runs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -27,6 +28,7 @@ export async function startServer(port = 7842, host = '127.0.0.1') {
   await app.register(toolsRoute);
   await app.register(evaluationsRoute);
   await app.register(settingsRoute);
+  await app.register(autoRunsRoute);
 
   app.get('/api/health', async () => ({ ok: true, version: '0.1.0' }));
 
