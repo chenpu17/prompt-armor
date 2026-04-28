@@ -1,6 +1,17 @@
 {
-  "name": "prompt-armor",
+  "name": "@chenpu17/prompt-armor",
   "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chenpu17/prompt-armor.git"
+  },
+  "homepage": "https://github.com/chenpu17/prompt-armor#readme",
+  "bugs": {
+    "url": "https://github.com/chenpu17/prompt-armor/issues"
+  },
   "type": "module",
   "description": "LLM 防护提示词工厂 — 生成、优化、评测系统级安全提示词，针对会触发工具调用的 AI 应用",
   "bin": {
