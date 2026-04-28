@@ -1,0 +1,12 @@
+node_modules
+dist
+packages/server/public
+packages/server/dist
+*.log
+.DS_Store
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+.prompt-armor/

@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+html, body, #root { height: 100%; }
+body {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(99,102,241,0.18), transparent 55%),
+    radial-gradient(ellipse at 90% 10%, rgba(236,72,153,0.14), transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(6,255,165,0.10), transparent 55%),
+    #060818;
+  font-family: 'Inter', ui-sans-serif, system-ui;
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/[0.04] border border-white/10 backdrop-blur-xl rounded-2xl;
+  }
+  .glass-hover {
+    @apply hover:bg-white/[0.07] hover:border-violet1/40 transition-all;
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all
+           bg-gradient-to-r from-violet1 to-magenta text-white shadow-glow hover:shadow-neon hover:-translate-y-0.5
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm bg-white/5 border border-white/10
+           hover:bg-white/10 hover:border-white/20 transition-all;
+  }
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-300
+           hover:bg-red-500/20 transition-all;
+  }
+  .input {
+    @apply w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-slate-100
+           focus:outline-none focus:border-violet1/60 focus:shadow-[0_0_20px_rgba(99,102,241,0.25)] placeholder:text-slate-500;
+  }
+  .label {
+    @apply block text-xs uppercase tracking-wider text-slate-400 mb-1;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border;
+  }
+  .badge-safe { @apply bg-emerald-500/10 border-emerald-500/30 text-emerald-300; }
+  .badge-sensitive { @apply bg-amber-500/10 border-amber-500/30 text-amber-300; }
+  .badge-dangerous { @apply bg-red-500/10 border-red-500/30 text-red-300; }
+  .badge-low { @apply bg-slate-500/10 border-slate-500/30 text-slate-300; }
+  .badge-medium { @apply bg-sky-500/10 border-sky-500/30 text-sky-300; }
+  .badge-high { @apply bg-orange-500/10 border-orange-500/30 text-orange-300; }
+  .badge-critical { @apply bg-red-500/10 border-red-500/30 text-red-300; }
+  .grad-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet1 via-magenta to-neon;
+  }
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+/* animated grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.pulse-dot { animation: pulse-glow 1.6s ease-in-out infinite; }
+
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
+
+/* lightweight page/card fade in (no layout shift) — replaces heavy framer-motion entry on every nav */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fade-in { animation: fade-in 0.18s ease-out both; }
+
+/* hide framer-motion's layout-thrash on route change */
+main { contain: paint; }

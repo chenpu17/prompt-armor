@@ -1,0 +1,34 @@
+{
+  "name": "prompt-armor",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "LLM 防护提示词工厂 — 生成、优化、评测系统级安全提示词，针对会触发工具调用的 AI 应用",
+  "bin": {
+    "prompt-armor": "bin/prompt-armor.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c magenta,cyan \"npm run dev:server\" \"npm run dev:web\"",
+    "dev:server": "npm -w packages/server run dev",
+    "dev:web": "npm -w packages/web run dev",
+    "build:web": "npm -w packages/web run build",
+    "build:server": "npm -w packages/server run build",
+    "build": "npm run build:web && npm run build:server && node scripts/bundle.mjs",
+    "start": "node bin/prompt-armor.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  },
+  "workspaces": [
+    "packages/server",
+    "packages/web"
+  ],
+  "keywords": ["llm", "security", "prompt", "redteam", "evaluation", "openai", "ai-guard"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
