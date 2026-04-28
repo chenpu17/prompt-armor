@@ -52,6 +52,20 @@ export default async function (app: FastifyInstance) {
     return { ok: true };
   });
 
+  app.put('/api/prompts/:id', async (req: any) => {
+    const id = req.params.id;
+    const exists = db.prepare('SELECT id FROM prompts WHERE id = ?').get(id);
+    if (!exists) throw app.httpErrors.notFound();
+    const fields: any = {};
+    if (typeof req.body?.title === 'string') fields.title = req.body.title.trim() || '未命名';
+    if (typeof req.body?.content === 'string') fields.content = req.body.content;
+    if (Array.isArray(req.body?.tags)) fields.tags = JSON.stringify(req.body.tags);
+    if (Object.keys(fields).length === 0) return { ok: true };
+    const sets = Object.keys(fields).map(k => `${k} = ?`).join(', ');
+    db.prepare(`UPDATE prompts SET ${sets} WHERE id = ?`).run(...Object.values(fields), id);
+    return db.prepare('SELECT * FROM prompts WHERE id = ?').get(id);
+  });
+
   function prepareGen(body: any) {
     const { generator_model_id, business_context, attack_categories, base_prompt_id, extra_requirements, title, source_set_ids, known_tool_context } = body || {};
     const gen = db.prepare('SELECT * FROM models WHERE id = ?').get(generator_model_id) as any;
@@ -76,10 +90,20 @@ export default async function (app: FastifyInstance) {
     };
   }
 
+  function deriveAutoTitle(ctx: ReturnType<typeof prepareGen>): string {
+    if (ctx.title && ctx.title.trim()) return ctx.title.trim();
+    const cats = ctx.cats || [];
+    const ts = new Date().toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    if (cats.length >= 1 && cats.length <= 3) return `防护提示词 · ${cats.join('/')} · ${ts}`;
+    if (cats.length > 3) return `防护提示词 · ${cats.length} 类 · ${ts}`;
+    if (ctx.source_set_ids?.length) return `防护提示词 · 基于样本集 · ${ts}`;
+    return `防护提示词 · ${ts}`;
+  }
+
   function persistPrompt(content: string, ctx: ReturnType<typeof prepareGen>) {
     const id = 'p-' + nanoid(8);
     db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,created_at) VALUES (?,?,?,?,?,?,?)')
-      .run(id, ctx.title || '生成 ' + new Date().toLocaleString('zh-CN'), content, ctx.base_prompt_id || null,
+      .run(id, deriveAutoTitle(ctx), content, ctx.base_prompt_id || null,
         JSON.stringify({ generator_model_id: ctx.gen.id, business_context: ctx.business_context, attack_categories: ctx.cats, source_set_ids: ctx.source_set_ids, known_tool_context: ctx.known_tool_context || undefined }),
         JSON.stringify(ctx.source_set_ids?.length ? ['generated', 'from_samples'] : ['generated']), nowMs());
     return db.prepare('SELECT * FROM prompts WHERE id = ?').get(id);

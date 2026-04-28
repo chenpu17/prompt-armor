@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api, streamGenerate } from '../api/client';
 import GlowCard, { PageHeader } from '../components/GlowCard';
-import { Sparkles, Eye, Trash2, X, GitBranch, Copy, ChevronDown } from 'lucide-react';
+import { Sparkles, Eye, Trash2, X, GitBranch, Copy, ChevronDown, Pencil } from 'lucide-react';
 import { useStore } from '../store';
 
 const ATTACK_CATS = [
@@ -16,6 +16,8 @@ export default function Prompts() {
   const sets = useStore(s => s.sampleSets);
   const refresh = useStore(s => s.refresh);
   const [view, setView] = useState<any | null>(null);
+  const [renameId, setRenameId] = useState<string | null>(null);
+  const [renameVal, setRenameVal] = useState('');
   const [genOpen, setGenOpen] = useState(false);
   const [advanced, setAdvanced] = useState(false);
   const [genForm, setGenForm] = useState<any>({
@@ -26,6 +28,15 @@ export default function Prompts() {
   });
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState<{ chars: number; status: string; derived?: any } | null>(null);
+
+  async function commitRename(id: string) {
+    const v = renameVal.trim();
+    if (v) {
+      try { await api.updatePrompt(id, { title: v }); await refresh('prompts'); }
+      catch (e: any) { alert('重命名失败: ' + e.message); }
+    }
+    setRenameId(null); setRenameVal('');
+  }
 
   async function generate() {
     setGenerating(true);
@@ -66,11 +77,23 @@ export default function Prompts() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   {p.parent_id && <GitBranch size={14} className="text-magenta shrink-0" />}
-                  <div className="font-semibold truncate">{p.title}</div>
+                  {renameId === p.id ? (
+                    <input
+                      autoFocus
+                      className="input !py-1 !px-2 text-sm flex-1"
+                      value={renameVal}
+                      onChange={e => setRenameVal(e.target.value)}
+                      onBlur={() => commitRename(p.id)}
+                      onKeyDown={e => { if (e.key === 'Enter') commitRename(p.id); if (e.key === 'Escape') { setRenameId(null); setRenameVal(''); } }}
+                    />
+                  ) : (
+                    <div className="font-semibold truncate cursor-text" title="点击右侧 ✎ 重命名">{p.title}</div>
+                  )}
                 </div>
                 <div className="text-[11px] text-slate-500 font-mono mt-0.5">{p.id} · {new Date(p.created_at).toLocaleString('zh-CN')}</div>
               </div>
               <div className="flex gap-1">
+                <button className="btn-ghost !p-1.5" title="重命名" onClick={() => { setRenameId(p.id); setRenameVal(p.title || ''); }}><Pencil size={14} /></button>
                 <button className="btn-ghost !p-1.5" onClick={async () => setView(await api.getPrompt(p.id))}><Eye size={14} /></button>
                 <button className="btn-danger !p-1.5" onClick={async () => { if (confirm('删除？')) { await api.deletePrompt(p.id); await refresh('prompts'); } }}><Trash2 size={14} /></button>
               </div>

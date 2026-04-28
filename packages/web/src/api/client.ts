@@ -29,6 +29,7 @@ export const api = {
   listPrompts: () => req('/api/prompts'),
   getPrompt: (id: string) => req(`/api/prompts/${id}`),
   createPrompt: (b: any) => req('/api/prompts', { method: 'POST', body: JSON.stringify(b) }),
+  updatePrompt: (id: string, b: any) => req(`/api/prompts/${id}`, { method: 'PUT', body: JSON.stringify(b) }),
   deletePrompt: (id: string) => req(`/api/prompts/${id}`, { method: 'DELETE' }),
   generatePrompt: (b: any) => req('/api/prompts/generate', { method: 'POST', body: JSON.stringify(b) }),
   optimizePrompt: (id: string, b: any) => req(`/api/prompts/${id}/optimize`, { method: 'POST', body: JSON.stringify(b) }),
