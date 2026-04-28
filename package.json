@@ -1,6 +1,6 @@
 {
   "name": "@chenpu17/prompt-armor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },
@@ -37,7 +37,15 @@
     "packages/server",
     "packages/web"
   ],
-  "keywords": ["llm", "security", "prompt", "redteam", "evaluation", "openai", "ai-guard"],
+  "keywords": [
+    "llm",
+    "security",
+    "prompt",
+    "redteam",
+    "evaluation",
+    "openai",
+    "ai-guard"
+  ],
   "license": "MIT",
   "engines": {
     "node": ">=18"
