@@ -1,6 +1,6 @@
 {
   "name": "@chenpu17/prompt-armor",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "publishConfig": {
     "access": "public"
   },
@@ -26,12 +26,12 @@
     "dev:server": "npm -w packages/server run dev",
     "dev:web": "npm -w packages/web run dev",
     "build:web": "npm -w packages/web run build",
-    "build:server": "npm -w packages/server run build",
-    "build": "npm run build:web && npm run build:server && node scripts/bundle.mjs",
+    "build": "npm run build:web && node scripts/bundle.mjs",
     "start": "node bin/prompt-armor.js"
   },
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "concurrently": "^9.0.1",
+    "esbuild": "^0.21.0"
   },
   "workspaces": [
     "packages/server",
@@ -49,5 +49,8 @@
   "license": "MIT",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0"
   }
 }

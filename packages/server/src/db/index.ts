@@ -15,8 +15,9 @@ db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
 const schemaPaths = [
-  join(__dirname, 'schema.sql'),
-  join(__dirname, '../../src/db/schema.sql'),
+  join(__dirname, 'schema.sql'),           // tsc output: dist/server/db/
+  join(__dirname, 'db/schema.sql'),        // esbuild bundle: dist/server/
+  join(__dirname, '../../src/db/schema.sql'), // dev fallback
 ];
 const schemaPath = schemaPaths.find(p => existsSync(p))!;
 const schema = readFileSync(schemaPath, 'utf-8');
