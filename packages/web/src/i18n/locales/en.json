@@ -453,7 +453,23 @@
     "role.bypass": "Role Bypass",
     "tool.misuse": "Tool Misuse",
     "benign": "Benign",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "communication.exfil": "Comm Exfiltration",
+    "communication.phishing": "Comm Phishing",
+    "database.read": "Database Read",
+    "database.write": "Database Write",
+    "remote.exec": "Remote Exec",
+    "cloud.read": "Cloud Storage Read",
+    "cloud.write": "Cloud Storage Write",
+    "container.escape": "Container Escape",
+    "persistence.cron": "Cron Persistence",
+    "persistence.webhook": "Webhook Register",
+    "credential.oauth": "OAuth Token",
+    "privacy.clipboard": "Clipboard Read",
+    "privacy.screenshot": "Screen Capture",
+    "ai.chain": "AI Chain Attack",
+    "supply.chain": "Supply Chain Attack",
+    "social.manipulation": "Social Manipulation"
   },
   "radar": {
     "passRate": "Pass Rate"

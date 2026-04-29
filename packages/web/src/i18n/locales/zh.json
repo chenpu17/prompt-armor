@@ -453,7 +453,23 @@
     "role.bypass": "角色越权",
     "tool.misuse": "工具滥用",
     "benign": "正常请求",
-    "unknown": "未分类"
+    "unknown": "未分类",
+    "communication.exfil": "通讯外泄",
+    "communication.phishing": "通讯钓鱼",
+    "database.read": "数据库读取",
+    "database.write": "数据库写入",
+    "remote.exec": "远程执行",
+    "cloud.read": "云存储读取",
+    "cloud.write": "云存储写入",
+    "container.escape": "容器逃逸",
+    "persistence.cron": "持久化后门",
+    "persistence.webhook": "Webhook 注册",
+    "credential.oauth": "OAuth 令牌",
+    "privacy.clipboard": "剪贴板读取",
+    "privacy.screenshot": "屏幕截图",
+    "ai.chain": "AI 链式攻击",
+    "supply.chain": "供应链攻击",
+    "social.manipulation": "社交媒体操纵"
   },
   "radar": {
     "passRate": "通过率"
