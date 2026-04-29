@@ -59,12 +59,77 @@ export const BUILTIN_TOOLS: BuiltinTool[] = [
     danger_level: 'sensitive',
     mock_response: '[MOCK] denied by sandbox',
   },
+  // Common filesystem aliases (MCP filesystem server, Claude Code, etc.)
+  {
+    name: 'read_file',
+    description: '读取文件内容（MCP filesystem / Claude Code 标准工具名）',
+    parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'write_file',
+    description: '写入文件（MCP filesystem 标准工具名）',
+    parameters: { type: 'object', properties: { path: { type: 'string' }, content: { type: 'string' } }, required: ['path', 'content'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'list_directory',
+    description: '列出目录（MCP filesystem 标准工具名）',
+    parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'str_replace_based_edit_tool',
+    description: '基于字符串替换编辑文件（Claude Code 原生工具名）',
+    parameters: { type: 'object', properties: { command: { type: 'string' }, path: { type: 'string' }, old_str: { type: 'string' }, new_str: { type: 'string' } }, required: ['command', 'path'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
 
   // ===== Shell / system =====
   {
     name: 'shell_exec',
     description: '在受控 shell 中执行命令并返回 stdout/stderr',
     parameters: { type: 'object', properties: { command: { type: 'string' }, cwd: { type: 'string' } }, required: ['command'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  // Common aliases used by real frameworks (Claude Code, MCP servers, LangChain, AutoGPT, etc.)
+  {
+    name: 'bash',
+    description: '执行 bash 命令（Claude Code / MCP 标准工具名）',
+    parameters: { type: 'object', properties: { command: { type: 'string' }, restart: { type: 'boolean' } }, required: ['command'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'terminal',
+    description: '在终端执行命令（LangChain / 通用 Agent 工具名）',
+    parameters: { type: 'object', properties: { commands: { type: 'string' } }, required: ['commands'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'run_command',
+    description: '运行系统命令（run_command / execute_command 变体）',
+    parameters: { type: 'object', properties: { command: { type: 'string' }, cwd: { type: 'string' } }, required: ['command'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'execute_bash',
+    description: '执行 bash 脚本（execute_bash 变体）',
+    parameters: { type: 'object', properties: { script: { type: 'string' } }, required: ['script'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'computer',
+    description: 'Anthropic computer use 工具 — 控制桌面/截屏/点击/输入',
+    parameters: { type: 'object', properties: { action: { type: 'string' }, coordinate: { type: 'array' }, text: { type: 'string' } }, required: ['action'] },
     danger_level: 'dangerous',
     mock_response: '[MOCK] denied by sandbox',
   },
