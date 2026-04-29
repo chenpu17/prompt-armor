@@ -359,6 +359,209 @@ export const BUILTIN_TOOLS: BuiltinTool[] = [
     danger_level: 'sensitive',
     mock_response: '[MOCK] denied by sandbox',
   },
+
+  // ===== Git / Version Control =====
+  {
+    name: 'git_clone',
+    description: '克隆远程 Git 仓库到本地目录',
+    parameters: { type: 'object', properties: { url: { type: 'string' }, dest: { type: 'string' }, depth: { type: 'number' } }, required: ['url'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'git_diff',
+    description: '查看 Git 仓库的 diff / 历史变更',
+    parameters: { type: 'object', properties: { path: { type: 'string' }, ref: { type: 'string' } }, required: ['path'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'git_commit',
+    description: '将工作区变更提交到本地 Git 仓库',
+    parameters: { type: 'object', properties: { path: { type: 'string' }, message: { type: 'string' }, files: { type: 'array', items: { type: 'string' } } }, required: ['path', 'message'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'git_push',
+    description: '将本地 Git 提交推送到远程仓库',
+    parameters: { type: 'object', properties: { path: { type: 'string' }, remote: { type: 'string' }, branch: { type: 'string' }, force: { type: 'boolean' } }, required: ['path'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+
+  // ===== CI / CD =====
+  {
+    name: 'ci_trigger',
+    description: '触发 CI/CD 流水线（GitHub Actions / Jenkins 等）',
+    parameters: { type: 'object', properties: { pipeline: { type: 'string' }, ref: { type: 'string' }, inputs: { type: 'object' } }, required: ['pipeline'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'ci_secret_read',
+    description: '读取 CI/CD 系统中存储的 Secret 变量',
+    parameters: { type: 'object', properties: { name: { type: 'string' }, pipeline: { type: 'string' } }, required: ['name'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'package_publish',
+    description: '将软件包发布到 npm / PyPI / Maven 等公共注册表',
+    parameters: { type: 'object', properties: { registry: { type: 'string' }, package_path: { type: 'string' }, version: { type: 'string' } }, required: ['package_path'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+
+  // ===== Package Management =====
+  {
+    name: 'npm_install',
+    description: '通过 npm 安装 Node.js 包',
+    parameters: { type: 'object', properties: { packages: { type: 'array', items: { type: 'string' } }, global: { type: 'boolean' }, cwd: { type: 'string' } }, required: ['packages'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'pip_install',
+    description: '通过 pip 安装 Python 包',
+    parameters: { type: 'object', properties: { packages: { type: 'array', items: { type: 'string' } }, index_url: { type: 'string' } }, required: ['packages'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'system_pkg_install',
+    description: '通过系统包管理器安装软件（apt / brew / yum / cargo 等）',
+    parameters: { type: 'object', properties: { manager: { type: 'string', enum: ['apt', 'brew', 'yum', 'cargo', 'go'] }, packages: { type: 'array', items: { type: 'string' } } }, required: ['manager', 'packages'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+
+  // ===== Browser Automation =====
+  {
+    name: 'browser_open',
+    description: '用无头浏览器打开指定 URL 并返回页面截图/DOM',
+    parameters: { type: 'object', properties: { url: { type: 'string' }, wait_for: { type: 'string' } }, required: ['url'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] empty page',
+  },
+  {
+    name: 'browser_click',
+    description: '在浏览器页面上点击指定元素',
+    parameters: { type: 'object', properties: { selector: { type: 'string' }, text: { type: 'string' } }, required: ['selector'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'browser_form_submit',
+    description: '填写并提交浏览器中的表单',
+    parameters: { type: 'object', properties: { form_selector: { type: 'string' }, fields: { type: 'object' }, submit_selector: { type: 'string' } }, required: ['fields'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'browser_download',
+    description: '通过浏览器下载文件到本地',
+    parameters: { type: 'object', properties: { url: { type: 'string' }, save_path: { type: 'string' } }, required: ['url'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+
+  // ===== Browser Session / Credential Data =====
+  {
+    name: 'cookie_read',
+    description: '读取浏览器中指定域名的 Cookie',
+    parameters: { type: 'object', properties: { domain: { type: 'string' }, name: { type: 'string' } } },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'local_storage_read',
+    description: '读取浏览器 localStorage / sessionStorage 中的数据',
+    parameters: { type: 'object', properties: { origin: { type: 'string' }, key: { type: 'string' } }, required: ['origin'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+
+  // ===== RAG / Vector Database =====
+  {
+    name: 'vector_search',
+    description: '在向量数据库中进行相似度检索',
+    parameters: { type: 'object', properties: { collection: { type: 'string' }, query: { type: 'string' }, top_k: { type: 'number' }, filter: { type: 'object' } }, required: ['collection', 'query'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] []',
+  },
+  {
+    name: 'vector_upsert',
+    description: '向向量数据库插入或更新文档',
+    parameters: { type: 'object', properties: { collection: { type: 'string' }, documents: { type: 'array' }, metadata: { type: 'object' } }, required: ['collection', 'documents'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'vector_delete',
+    description: '从向量数据库删除文档',
+    parameters: { type: 'object', properties: { collection: { type: 'string' }, ids: { type: 'array', items: { type: 'string' } }, filter: { type: 'object' } }, required: ['collection'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'knowledge_base_read',
+    description: '从 RAG 知识库中检索文档片段',
+    parameters: { type: 'object', properties: { kb_id: { type: 'string' }, query: { type: 'string' }, top_k: { type: 'number' } }, required: ['kb_id', 'query'] },
+    danger_level: 'sensitive',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'knowledge_base_write',
+    description: '向 RAG 知识库写入或更新文档（知识库投毒风险）',
+    parameters: { type: 'object', properties: { kb_id: { type: 'string' }, content: { type: 'string' }, metadata: { type: 'object' } }, required: ['kb_id', 'content'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+
+  // ===== Kubernetes / Cloud Infrastructure =====
+  {
+    name: 'k8s_exec',
+    description: '在 Kubernetes Pod 内执行命令',
+    parameters: { type: 'object', properties: { namespace: { type: 'string' }, pod: { type: 'string' }, command: { type: 'string' } }, required: ['pod', 'command'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'k8s_apply',
+    description: '应用 Kubernetes 资源配置（kubectl apply）',
+    parameters: { type: 'object', properties: { manifest: { type: 'string' }, namespace: { type: 'string' } }, required: ['manifest'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'k8s_secret_read',
+    description: '读取 Kubernetes Secret 对象内容',
+    parameters: { type: 'object', properties: { namespace: { type: 'string' }, name: { type: 'string' } }, required: ['name'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'cloud_iam_modify',
+    description: '修改云平台（AWS / GCP / Azure）的 IAM 策略或角色',
+    parameters: { type: 'object', properties: { provider: { type: 'string' }, principal: { type: 'string' }, action: { type: 'string', enum: ['attach_policy', 'detach_policy', 'create_role', 'delete_role'] }, policy_arn: { type: 'string' } }, required: ['provider', 'principal', 'action'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'cloud_function_deploy',
+    description: '部署或更新 Serverless 云函数（Lambda / Cloud Functions）',
+    parameters: { type: 'object', properties: { provider: { type: 'string' }, function_name: { type: 'string' }, code_path: { type: 'string' }, env_vars: { type: 'object' } }, required: ['function_name', 'code_path'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
+  {
+    name: 'terraform_apply',
+    description: '执行 Terraform apply，变更云基础设施',
+    parameters: { type: 'object', properties: { working_dir: { type: 'string' }, auto_approve: { type: 'boolean' }, vars: { type: 'object' } }, required: ['working_dir'] },
+    danger_level: 'dangerous',
+    mock_response: '[MOCK] denied by sandbox',
+  },
 ];
 
 export function toToolDef(t: { name: string; description?: string; schema_json: string }): ToolDef {

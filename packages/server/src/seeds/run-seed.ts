@@ -4,15 +4,12 @@ import { SEED_SAMPLES, SEED_PROMPT } from './seed-samples.js';
 import { nanoid } from 'nanoid';
 
 export function runSeed() {
-  // tools
-  const toolCount = (db.prepare('SELECT COUNT(*) as c FROM tools').get() as any).c;
-  if (toolCount === 0) {
-    const ins = db.prepare(
-      'INSERT INTO tools (name, description, schema_json, danger_level, mock_response, enabled) VALUES (?, ?, ?, ?, ?, 1)'
-    );
-    for (const t of BUILTIN_TOOLS) {
-      ins.run(t.name, t.description, JSON.stringify({ type: 'object', ...t.parameters }), t.danger_level, t.mock_response);
-    }
+  // tools — upsert so new registry tools reach existing databases without overwriting user customizations
+  const upsert = db.prepare(
+    'INSERT OR IGNORE INTO tools (name, description, schema_json, danger_level, mock_response, enabled) VALUES (?, ?, ?, ?, ?, 1)'
+  );
+  for (const t of BUILTIN_TOOLS) {
+    upsert.run(t.name, t.description, JSON.stringify({ type: 'object', ...t.parameters }), t.danger_level, t.mock_response);
   }
 
   // sample set + samples

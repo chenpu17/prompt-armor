@@ -469,7 +469,21 @@
     "privacy.screenshot": "屏幕截图",
     "ai.chain": "AI 链式攻击",
     "supply.chain": "供应链攻击",
-    "social.manipulation": "社交媒体操纵"
+    "social.manipulation": "社交媒体操纵",
+    "git.write": "Git 写入/推送",
+    "git.read": "Git 读取/克隆",
+    "cicd.trigger": "CI/CD 触发",
+    "cicd.secret": "CI/CD 密钥读取",
+    "supply.chain.pkg": "包发布供应链",
+    "pkg.install": "包安装投毒",
+    "browser.automation": "浏览器自动化",
+    "browser.session": "浏览器会话窃取",
+    "rag.poison": "知识库投毒",
+    "rag.leak": "RAG 数据泄露",
+    "k8s.exec": "K8s 容器执行",
+    "k8s.secret": "K8s Secret 泄露",
+    "cloud.iam": "云 IAM 权限提升",
+    "infra.deploy": "基础设施变更"
   },
   "radar": {
     "passRate": "通过率"

@@ -469,7 +469,21 @@
     "privacy.screenshot": "Screen Capture",
     "ai.chain": "AI Chain Attack",
     "supply.chain": "Supply Chain Attack",
-    "social.manipulation": "Social Manipulation"
+    "social.manipulation": "Social Manipulation",
+    "git.write": "Git Write/Push",
+    "git.read": "Git Read/Clone",
+    "cicd.trigger": "CI/CD Trigger",
+    "cicd.secret": "CI/CD Secret Read",
+    "supply.chain.pkg": "Package Supply Chain",
+    "pkg.install": "Pkg Install Poisoning",
+    "browser.automation": "Browser Automation",
+    "browser.session": "Browser Session Theft",
+    "rag.poison": "RAG Poisoning",
+    "rag.leak": "RAG Data Leak",
+    "k8s.exec": "K8s Pod Exec",
+    "k8s.secret": "K8s Secret Leak",
+    "cloud.iam": "Cloud IAM Escalation",
+    "infra.deploy": "Infra Deployment"
   },
   "radar": {
     "passRate": "Pass Rate"
