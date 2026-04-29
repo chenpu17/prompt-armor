@@ -63,9 +63,13 @@ export default async function (app: FastifyInstance) {
     const target = get(target_model_id, '被评测目标');
     const judge = get(judge_model_id, '裁判');
 
-    // Normalize profile IDs
+    // Normalize profile IDs and validate existence up-front
     const pids: string[] = Array.isArray(profile_ids) && profile_ids.length > 0
       ? profile_ids : (profile_id ? [profile_id] : []);
+    for (const pid of pids) {
+      const exists = db.prepare('SELECT id FROM tool_profiles WHERE id = ?').get(pid);
+      if (!exists) throw app.httpErrors.badRequest(`工具档案不存在: ${pid}`);
+    }
     const profileIdsJson = pids.length ? JSON.stringify(pids) : null;
 
     const id = 'ar-' + nanoid(8);

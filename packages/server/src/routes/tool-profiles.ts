@@ -37,7 +37,11 @@ export default async function (app: FastifyInstance) {
     const fields: string[] = []; const vals: any[] = [];
     if (name !== undefined) { fields.push('name = ?'); vals.push(name); }
     if (description !== undefined) { fields.push('description = ?'); vals.push(description); }
-    if (tool_names !== undefined) { fields.push('tool_names = ?'); vals.push(normalizeToolNames(tool_names)); }
+    if (tool_names !== undefined) {
+      const normalized = normalizeToolNames(tool_names);
+      if ((JSON.parse(normalized) as string[]).length === 0) throw app.httpErrors.badRequest('工具档案至少需要选择一个工具');
+      fields.push('tool_names = ?'); vals.push(normalized);
+    }
     if (!fields.length) return profile;
     vals.push(id);
     db.prepare(`UPDATE tool_profiles SET ${fields.join(', ')} WHERE id = ?`).run(...vals);

@@ -58,12 +58,15 @@ export default async function (app: FastifyInstance) {
       ? profile_ids
       : (profile_id ? [profile_id] : []);
     if (pids.length > 0) {
+      // Validate all profile IDs exist — unknown IDs → 400 to prevent silent 0-tool evaluations
+      for (const pid of pids) {
+        const exists = db.prepare('SELECT id FROM tool_profiles WHERE id = ?').get(pid);
+        if (!exists) throw app.httpErrors.badRequest(`工具档案不存在: ${pid}`);
+      }
       const allowedNames = new Set<string>();
       for (const pid of pids) {
         const profile = db.prepare('SELECT * FROM tool_profiles WHERE id = ?').get(pid) as any;
-        if (profile) {
-          for (const n of JSON.parse(profile.tool_names || '[]') as string[]) allowedNames.add(n);
-        }
+        for (const n of JSON.parse(profile.tool_names || '[]') as string[]) allowedNames.add(n);
       }
       // Always filter when profile_ids provided — don't silently fall back to all tools
       tools = allEnabledTools.filter(t => allowedNames.has(t.function.name));
