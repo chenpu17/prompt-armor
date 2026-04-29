@@ -1,6 +1,7 @@
-import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
-import { Shield, LayoutDashboard, Cpu, FileText, Target as TargetIcon, Wrench, PlayCircle, BarChart3, Settings as SettingsIcon, Rocket } from 'lucide-react';
+import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
+import { Shield, LayoutDashboard, Cpu, FileText, Target as TargetIcon, Wrench, PlayCircle, BarChart3, Settings as SettingsIcon, Rocket, BookOpen } from 'lucide-react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Dashboard from './pages/Dashboard';
 import Models from './pages/Models';
 import Prompts from './pages/Prompts';
@@ -10,39 +11,47 @@ import EvalRun from './pages/EvalRun';
 import EvalReport from './pages/EvalReport';
 import AutoPilot from './pages/AutoPilot';
 import Settings from './pages/Settings';
+import Welcome from './pages/Welcome';
+import Help from './pages/Help';
 import ParticleBg from './components/ParticleBg';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import { useStore } from './store';
 
-const nav = [
-  { to: '/dashboard', icon: LayoutDashboard, label: '总览' },
-  { to: '/models', icon: Cpu, label: '模型管理' },
-  { to: '/prompts', icon: FileText, label: '防护提示词' },
-  { to: '/samples', icon: TargetIcon, label: '攻击样本' },
-  { to: '/tools', icon: Wrench, label: '工具集' },
-  { to: '/eval', icon: PlayCircle, label: '运行评测' },
-  { to: '/reports', icon: BarChart3, label: '评测报告' },
-  { to: '/auto', icon: Rocket, label: '自动优化' },
-  { to: '/settings', icon: SettingsIcon, label: '系统设置' },
+const NAV = [
+  { to: '/dashboard', icon: LayoutDashboard, key: 'dashboard' },
+  { to: '/models',    icon: Cpu,             key: 'models' },
+  { to: '/prompts',   icon: FileText,        key: 'prompts' },
+  { to: '/samples',   icon: TargetIcon,      key: 'samples' },
+  { to: '/tools',     icon: Wrench,          key: 'tools' },
+  { to: '/eval',      icon: PlayCircle,      key: 'eval' },
+  { to: '/reports',   icon: BarChart3,       key: 'reports' },
+  { to: '/auto',      icon: Rocket,          key: 'auto' },
+  { to: '/help',      icon: BookOpen,        key: 'help' },
+  { to: '/settings',  icon: SettingsIcon,    key: 'settings' },
 ];
 
-export default function App() {
+function Shell() {
   const loadAll = useStore(s => s.loadAll);
+  const { t } = useTranslation();
   useEffect(() => { loadAll(); }, [loadAll]);
   return (
     <div className="relative min-h-screen flex">
       <ParticleBg />
-      <aside className="w-60 shrink-0 p-5 border-r border-white/5 relative z-10">
-        <div className="flex items-center gap-2 mb-8">
+      <aside className="w-60 shrink-0 p-5 border-r border-white/5 relative z-10 flex flex-col">
+        <div className="flex items-center gap-2 mb-6">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet1 to-neon shadow-glow flex items-center justify-center">
             <Shield size={18} className="text-white" />
           </div>
           <div>
-            <div className="font-bold text-lg leading-tight grad-text">Prompt Armor</div>
-            <div className="text-[10px] text-slate-500 tracking-widest">LLM SECURITY FORGE</div>
+            <div className="font-bold text-lg leading-tight grad-text">{t('app.name')}</div>
+            <div className="text-[10px] text-slate-500 tracking-widest">{t('app.tagline')}</div>
           </div>
         </div>
-        <nav className="flex flex-col gap-1">
-          {nav.map(n => (
+        <div className="mb-4">
+          <LanguageSwitcher />
+        </div>
+        <nav className="flex flex-col gap-1 flex-1">
+          {NAV.map(n => (
             <NavLink
               key={n.to}
               to={n.to}
@@ -55,17 +64,16 @@ export default function App() {
               }
             >
               <n.icon size={16} />
-              {n.label}
+              {t(`nav.${n.key}`)}
             </NavLink>
           ))}
         </nav>
-        <div className="absolute bottom-5 left-5 right-5 text-[10px] text-slate-600 leading-relaxed">
-          v0.2.0 · 数据存储于<br /><span className="font-mono">~/.prompt-armor/</span>
+        <div className="text-[10px] text-slate-600 leading-relaxed mt-4">
+          v0.3.0 · {t('app.footer')}<br /><span className="font-mono">~/.prompt-armor/</span>
         </div>
       </aside>
       <main className="flex-1 relative z-10 overflow-auto">
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/models" element={<Models />} />
           <Route path="/prompts" element={<Prompts />} />
@@ -77,9 +85,19 @@ export default function App() {
           <Route path="/reports/:id" element={<EvalReport />} />
           <Route path="/auto" element={<AutoPilot />} />
           <Route path="/auto/:id" element={<AutoPilot />} />
+          <Route path="/help" element={<Help />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
     </div>
   );
+}
+
+export default function App() {
+  const { pathname } = useLocation();
+  if (pathname === '/' || pathname === '/welcome') {
+    return <Welcome />;
+  }
+  return <Shell />;
 }

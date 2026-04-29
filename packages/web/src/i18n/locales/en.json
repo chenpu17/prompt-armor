@@ -1,0 +1,77 @@
+{
+  "app": {
+    "name": "Prompt Armor",
+    "tagline": "LLM Security Forge",
+    "footer": "Data stored at"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "models": "Models",
+    "prompts": "Guardrail Prompts",
+    "samples": "Attack Samples",
+    "tools": "Tool Set",
+    "eval": "Run Evaluation",
+    "reports": "Reports",
+    "auto": "Auto-Pilot",
+    "settings": "Settings",
+    "help": "Help",
+    "welcome": "Welcome"
+  },
+  "common": {
+    "save": "Save", "cancel": "Cancel", "delete": "Delete", "edit": "Edit", "create": "Create",
+    "loading": "Loading…", "confirm": "Confirm", "close": "Close", "back": "Back", "next": "Next",
+    "start": "Start", "stop": "Stop", "running": "Running", "done": "Done", "failed": "Failed", "stopped": "Stopped",
+    "rename": "Rename", "copy": "Copy", "yes": "Yes", "no": "No", "search": "Search", "refresh": "Refresh",
+    "export": "Export", "score": "Score", "category": "Category", "passed": "Passed", "failedStatus": "Failed",
+    "details": "Details", "settings": "Settings"
+  },
+  "lang": { "switch": "Language", "zh": "中文", "en": "English" },
+  "welcome": {
+    "hero": {
+      "badge": "OPEN SOURCE · MIT",
+      "title1": "Forge Security Armor",
+      "title2": "for Your AI Agent",
+      "subtitle": "End-to-end workshop for system-prompt safety in LLM tool-use scenarios: AI generation, red-team evaluation and closed-loop optimization.",
+      "ctaStart": "Get Started",
+      "ctaDocs": "Documentation",
+      "ctaGithub": "GitHub"
+    },
+    "stats": {
+      "categories": "Attack Categories",
+      "tools": "Mock Tools",
+      "models": "Decoupled Roles",
+      "loop": "Full Closed-Loop"
+    },
+    "features": {
+      "title": "Core Capabilities",
+      "subtitle": "Build a security baseline for tool-using agents from scratch",
+      "generate": { "title": "Smart Prompt Generation", "desc": "AI streams system-level guardrail prompts based on your context and attack samples — rename, edit and version freely" },
+      "samples": { "title": "Attack Sample Factory", "desc": "Natural-language description → AI generates red-team samples across categories; merge multiple sets" },
+      "eval": { "title": "Adversarial Evaluation", "desc": "Target model × built-in mock tools × judge model — log every tool call, response and verdict; radar charts" },
+      "auto": { "title": "Auto-Pilot Optimization", "desc": "Seed samples → eval → optimize → refresh samples (anti-overfit) → re-eval, N self-iterations until convergence" },
+      "models": { "title": "4-Role Decoupling", "desc": "Generator / Attacker / Target / Judge — wire any OpenAI-compatible endpoint (DeepSeek / Qwen / Ollama …)" },
+      "stream": { "title": "Streaming Feedback", "desc": "Token counters / per-sample progress / phase logs — long jobs never go silent or time out" }
+    },
+    "screens": { "title": "Product Tour", "subtitle": "Modern dark aesthetic · particle backdrop · real-time streams" },
+    "install": { "title": "One-line Launch", "subtitle": "Node 18+, all data stored locally at ~/.prompt-armor/" },
+    "footer": { "tagline": "MIT licensed · For security research and defense testing only" }
+  },
+  "help": {
+    "title": "Help Guide",
+    "subtitle": "Get hands-on with Prompt Armor in 5 minutes",
+    "toc": "Contents",
+    "sections": {
+      "intro": { "title": "Overview", "body": "Prompt Armor is a workshop for system-prompt safety on tool-using LLM agents. It does four things: (1) generate guardrail system prompts; (2) generate red-team and benign sample sets; (3) run adversarial evaluations with pass-rate metrics and failure traces; (4) auto-iterate the prompt in a closed loop until it converges.\n\nAll data is stored locally at ~/.prompt-armor/db.sqlite — nothing is uploaded." },
+      "models": { "title": "1. Configure Models", "body": "Open Models and add at least one OpenAI-compatible endpoint (DeepSeek / Qwen / Ollama / self-hosted vLLM all work). For best results, use distinct models for the four roles (Generator / Attack-Generator / Target / Judge) to reduce same-source bias." },
+      "samples": { "title": "2. Generate Attack Samples", "body": "On the Attack Samples page paste a natural-language brief (scenario, typical attacks). Pick a generator model — samples stream in across categories. You can also import manually or merge multiple sets." },
+      "prompts": { "title": "3. Generate Guardrail Prompt", "body": "On the Guardrail Prompts page pick one or more sample sets → AI analyzes the risk surface → streams a system prompt. Rename / edit / version after generation." },
+      "eval": { "title": "4. Run Evaluation", "body": "Pick Prompt × Test Set × Target × Judge, then Start. The target answers each sample under the built-in mock tool set; the judge decides pass/fail. Radar / details / failure reasons appear in Reports." },
+      "auto": { "title": "5. Auto-Pilot (Recommended)", "body": "On Auto-Pilot, fill in name, business context, a few seed samples, the four models and iteration count, then Start. The system loops automatically: generate initial prompt → evaluate → optimize prompt from failures + refresh samples for weak categories → re-evaluate, until target pass rate is reached or no further improvement.\n\nLive score chart, iteration timeline, token stream and per-phase progress are visible throughout." },
+      "tips": { "title": "Tips & FAQ", "body": "· Eval too slow? Reduce samples to 8–12; default concurrency is 4.\n· Judge too strict? Override the judge system prompt under Settings.\n· Want benign samples? Enable benign generation in the sample form so guardrails don't over-correct." }
+    }
+  },
+  "autopilot": {
+    "title": "Auto-Pilot",
+    "subtitle": "From seed samples → automatic loop: generate → evaluate → optimize → anti-overfit refresh → converge"
+  }
+}
