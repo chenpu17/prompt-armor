@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS prompts (
   parent_id TEXT,
   generation_meta TEXT,
   tags TEXT,
+  token_count INTEGER,
   created_at INTEGER NOT NULL
 );
 

@@ -2,6 +2,7 @@ import { db, nowMs } from '../db/index.js';
 import { BUILTIN_TOOLS } from '../tools/registry.js';
 import { SEED_SAMPLES, SEED_PROMPT } from './seed-samples.js';
 import { nanoid } from 'nanoid';
+import { estimateTokens } from '../util/tokens.js';
 
 export function runSeed() {
   // tools — upsert so new registry tools reach existing databases without overwriting user customizations
@@ -47,13 +48,14 @@ export function runSeed() {
   // baseline prompt
   const pCount = (db.prepare('SELECT COUNT(*) as c FROM prompts').get() as any).c;
   if (pCount === 0) {
-    db.prepare('INSERT INTO prompts (id, title, content, parent_id, generation_meta, tags, created_at) VALUES (?,?,?,?,?,?,?)').run(
+    db.prepare('INSERT INTO prompts (id, title, content, parent_id, generation_meta, tags, token_count, created_at) VALUES (?,?,?,?,?,?,?,?)').run(
       'baseline-' + nanoid(6),
       '基线防护提示词 v0',
       SEED_PROMPT,
       null,
       JSON.stringify({ source: 'seed' }),
       JSON.stringify(['baseline', 'seed']),
+      estimateTokens(SEED_PROMPT),
       nowMs()
     );
   }

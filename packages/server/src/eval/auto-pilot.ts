@@ -6,6 +6,7 @@ import { bus } from '../util/bus.js';
 import { generatePromptStream } from '../roles/prompt-generator.js';
 import { generateSamplesStream } from '../roles/attack-sample-gen.js';
 import { toToolDef } from '../tools/registry.js';
+import { estimateTokens } from '../util/tokens.js';
 import type { ModelConfig } from '../llm/openai-compat.js';
 
 type ModelRow = ModelConfig & { id: string };
@@ -64,8 +65,8 @@ function loadSamplesForEval(setId: string) {
 
 function persistPrompt(content: string, title: string, parentId: string | null, meta: any): string {
   const id = 'p-' + nanoid(8);
-  db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,created_at) VALUES (?,?,?,?,?,?,?)')
-    .run(id, title, content, parentId, JSON.stringify(meta), JSON.stringify(['auto']), nowMs());
+  db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,token_count,created_at) VALUES (?,?,?,?,?,?,?,?)')
+    .run(id, title, content, parentId, JSON.stringify(meta), JSON.stringify(['auto']), estimateTokens(content), nowMs());
   return id;
 }
 

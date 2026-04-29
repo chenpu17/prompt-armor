@@ -92,7 +92,7 @@ export default function Prompts() {
                     <div className="font-semibold truncate cursor-text" title={t('prompts.clickToRename')}>{p.title}</div>
                   )}
                 </div>
-                <div className="text-[11px] text-slate-500 font-mono mt-0.5">{p.id} · {new Date(p.created_at).toLocaleString('zh-CN')}</div>
+                <div className="text-[11px] text-slate-500 font-mono mt-0.5">{p.id} · {new Date(p.created_at).toLocaleString('zh-CN')}{p.token_count ? <span className="ml-2 text-violet-400">~{p.token_count.toLocaleString()} tokens</span> : null}</div>
               </div>
               <div className="flex gap-1">
                 <button className="btn-ghost !p-1.5" title={t('prompts.rename')} onClick={() => { setRenameId(p.id); setRenameVal(p.title || ''); }}><Pencil size={14} /></button>
@@ -114,7 +114,12 @@ export default function Prompts() {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="glass p-6 max-w-3xl w-full max-h-[85vh] overflow-auto">
             <div className="flex items-center justify-between mb-3 sticky top-0 bg-spaceDeep/80 backdrop-blur py-2 -mt-2 z-10">
-              <h2 className="text-xl font-semibold">{view.title}</h2>
+              <div>
+                <h2 className="text-xl font-semibold">{view.title}</h2>
+                {view.token_count && (
+                  <div className="text-xs text-violet-400 mt-0.5">~{view.token_count.toLocaleString()} tokens · {view.content?.length.toLocaleString()} chars</div>
+                )}
+              </div>
               <div className="flex gap-2">
                 <button className="btn-ghost" onClick={() => { navigator.clipboard.writeText(view.content); }}><Copy size={14} />{t('prompts.copy')}</button>
                 <button className="btn-ghost !p-1.5" onClick={() => setView(null)}><X size={16} /></button>

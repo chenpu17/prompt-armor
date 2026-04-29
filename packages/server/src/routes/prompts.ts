@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db, nowMs } from '../db/index.js';
 import { nanoid } from 'nanoid';
 import { generatePrompt, generatePromptStream } from '../roles/prompt-generator.js';
+import { estimateTokens } from '../util/tokens.js';
 
 function deriveFromSourceSets(source_set_ids: string[] | undefined, attack_categories: string[] | undefined) {
   let cats = attack_categories;
@@ -102,10 +103,11 @@ export default async function (app: FastifyInstance) {
 
   function persistPrompt(content: string, ctx: ReturnType<typeof prepareGen>) {
     const id = 'p-' + nanoid(8);
-    db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,created_at) VALUES (?,?,?,?,?,?,?)')
+    db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,token_count,created_at) VALUES (?,?,?,?,?,?,?,?)')
       .run(id, deriveAutoTitle(ctx), content, ctx.base_prompt_id || null,
         JSON.stringify({ generator_model_id: ctx.gen.id, business_context: ctx.business_context, attack_categories: ctx.cats, source_set_ids: ctx.source_set_ids, known_tool_context: ctx.known_tool_context || undefined }),
-        JSON.stringify(ctx.source_set_ids?.length ? ['generated', 'from_samples'] : ['generated']), nowMs());
+        JSON.stringify(ctx.source_set_ids?.length ? ['generated', 'from_samples'] : ['generated']),
+        estimateTokens(content), nowMs());
     return db.prepare('SELECT * FROM prompts WHERE id = ?').get(id);
   }
 
@@ -163,10 +165,10 @@ export default async function (app: FastifyInstance) {
       extra_requirements,
     });
     const id = 'p-' + nanoid(8);
-    db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,created_at) VALUES (?,?,?,?,?,?,?)')
+    db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,token_count,created_at) VALUES (?,?,?,?,?,?,?,?)')
       .run(id, title || (base.title || '提示词') + ' · 优化', content, baseId,
         JSON.stringify({ generator_model_id, evaluation_id, failure_count: failures.length }),
-        JSON.stringify(['optimized']), nowMs());
+        JSON.stringify(['optimized']), estimateTokens(content), nowMs());
     if (evaluation_id) {
       db.prepare('INSERT INTO optimizations (id,from_prompt_id,to_prompt_id,evaluation_id,generator_model_id,notes,created_at) VALUES (?,?,?,?,?,?,?)')
         .run('o-' + nanoid(6), baseId, id, evaluation_id, generator_model_id, `修复 ${failures.length} 个失败用例`, nowMs());

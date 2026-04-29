@@ -26,6 +26,7 @@ db.exec(schema);
 // Incremental migrations for columns added after initial schema
 const migrations: string[] = [
   `ALTER TABLE auto_runs ADD COLUMN error_message TEXT`,
+  `ALTER TABLE prompts ADD COLUMN token_count INTEGER`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* column already exists */ }
