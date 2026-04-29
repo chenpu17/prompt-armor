@@ -219,8 +219,9 @@ export async function startAutoRun(p: StartAutoRunParams) {
 
       // 评测
       const evalId = 'e-' + nanoid(10);
-      db.prepare('INSERT INTO evaluations (id,prompt_id,sample_set_id,target_model_id,judge_model_id,status,created_at) VALUES (?,?,?,?,?,?,?)')
-        .run(evalId, currentPromptId, currentSetId, p.target.id, p.judge.id, 'pending', nowMs());
+      const profileIdsJson = p.profileIds?.length ? JSON.stringify(p.profileIds) : null;
+      db.prepare('INSERT INTO evaluations (id,prompt_id,sample_set_id,target_model_id,judge_model_id,status,profile_id,profile_ids,created_at) VALUES (?,?,?,?,?,?,?,?,?)')
+        .run(evalId, currentPromptId, currentSetId, p.target.id, p.judge.id, 'pending', p.profileIds?.[0] || null, profileIdsJson, nowMs());
       db.prepare('UPDATE auto_iterations SET evaluation_id = ? WHERE id = ?').run(evalId, iterId);
       log('phase', { phase: 'eval', iter_no: iterNo, evaluation_id: evalId });
 

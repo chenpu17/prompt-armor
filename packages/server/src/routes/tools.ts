@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/index.js';
 
-const VALID_DANGER_LEVELS = new Set(['critical', 'high', 'medium', 'low', 'safe']);
+const VALID_DANGER_LEVELS = new Set(['safe', 'sensitive', 'dangerous']);
 
 export default async function (app: FastifyInstance) {
   app.get('/api/tools', async () => {

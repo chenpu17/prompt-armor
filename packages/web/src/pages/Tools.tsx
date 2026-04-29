@@ -29,7 +29,7 @@ function ProfilesSection() {
 
   async function createProfile() {
     if (!newName.trim()) return;
-    await api.createToolProfile({ name: newName.trim(), description: newDesc.trim(), tool_names: JSON.stringify([...selected]) });
+    await api.createToolProfile({ name: newName.trim(), description: newDesc.trim(), tool_names: [...selected] });
     setCreating(false); setNewName(''); setNewDesc(''); setSelected(new Set());
     reload();
   }
