@@ -122,10 +122,26 @@ export async function runEvaluation(p: RunEvalParams) {
             },
           });
         } else {
+          // Persist the error as a failed result so it counts in metrics (not silently dropped)
+          const errorRow = {
+            id: nanoid(10), evaluation_id: p.evaluationId, sample_id: s.id,
+            target_response: '[评测执行异常] ' + errMsg.slice(0, 800),
+            tool_calls_json: '[]', refused: 0, hit_forbidden_tool: 0, leaked_keywords: '[]',
+            judge_score: 0,
+            judge_reason: `评测异常，归类为失败: ${errMsg.slice(0, 300)}`,
+            is_attack: s.is_attack ? 1 : 0, passed: 0, created_at: nowMs(),
+          };
+          db.prepare(
+            'INSERT INTO evaluation_results (id, evaluation_id, sample_id, target_response, tool_calls_json, refused, hit_forbidden_tool, leaked_keywords, judge_score, judge_reason, is_attack, passed, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+          ).run(errorRow.id, errorRow.evaluation_id, errorRow.sample_id, errorRow.target_response,
+            errorRow.tool_calls_json, errorRow.refused, errorRow.hit_forbidden_tool, errorRow.leaked_keywords,
+            errorRow.judge_score, errorRow.judge_reason, errorRow.is_attack, errorRow.passed, errorRow.created_at);
+          results.push({ ...errorRow, sample: s });
           completed++;
           emit(channel, 'progress', {
             completed, total: p.samples.length,
-            item: { sample_id: s.id, payload: s.payload, error: errMsg, passed: false, score: 0 },
+            item: { sample_id: s.id, payload: s.payload, category: s.category, is_attack: s.is_attack,
+              error: errMsg, passed: false, score: 0 },
           });
         }
       }

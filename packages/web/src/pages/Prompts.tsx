@@ -111,8 +111,9 @@ export default function Prompts() {
       </div>
 
       {view && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="glass p-6 max-w-3xl w-full max-h-[85vh] overflow-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-full flex items-center justify-center p-4">
+          <div className="glass p-6 max-w-3xl w-full">
             <div className="flex items-center justify-between mb-3 sticky top-0 bg-spaceDeep/80 backdrop-blur py-2 -mt-2 z-10">
               <div>
                 <h2 className="text-xl font-semibold">{view.title}</h2>
@@ -126,6 +127,7 @@ export default function Prompts() {
               </div>
             </div>
             <pre className="text-xs whitespace-pre-wrap font-mono text-slate-300 leading-relaxed">{view.content}</pre>
+          </div>
           </div>
         </div>
       )}

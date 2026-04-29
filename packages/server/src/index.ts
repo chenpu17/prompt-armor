@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 import './db/index.js'; // initialize DB
 import { runSeed } from './seeds/run-seed.js';
@@ -15,6 +15,20 @@ import settingsRoute from './routes/settings.js';
 import autoRunsRoute from './routes/auto-runs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Read version from nearest package.json at startup
+function readVersion(): string {
+  const pkgCandidates = [
+    join(__dirname, '../package.json'),
+    join(__dirname, '../../package.json'),
+    join(__dirname, '../../../package.json'),
+  ];
+  for (const p of pkgCandidates) {
+    try { return JSON.parse(readFileSync(p, 'utf-8')).version ?? 'unknown'; } catch { /* next */ }
+  }
+  return 'unknown';
+}
+const VERSION = readVersion();
 
 export async function startServer(port = 7842, host = '127.0.0.1') {
   runSeed();
@@ -30,7 +44,7 @@ export async function startServer(port = 7842, host = '127.0.0.1') {
   await app.register(settingsRoute);
   await app.register(autoRunsRoute);
 
-  app.get('/api/health', async () => ({ ok: true, version: '0.1.0' }));
+  app.get('/api/health', async () => ({ ok: true, version: VERSION }));
 
   // serve static web (built)
   const candidates = [
@@ -51,7 +65,7 @@ export async function startServer(port = 7842, host = '127.0.0.1') {
   return app;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.env.PORT || 7842);
   startServer(port).catch(e => { console.error(e); process.exit(1); });
 }

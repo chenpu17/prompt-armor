@@ -49,7 +49,8 @@ export default async function (app: FastifyInstance) {
       is_attack: !!s.is_attack, category: s.category, severity: s.severity,
     }));
 
-    const tools = (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[]).map(toToolDef);
+    const tools = (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[])
+      .map(toToolDef).filter((t): t is NonNullable<ReturnType<typeof toToolDef>> => t !== null);
     const evalId = 'e-' + nanoid(10);
     db.prepare('INSERT INTO evaluations (id,prompt_id,sample_set_id,target_model_id,judge_model_id,status,created_at) VALUES (?,?,?,?,?,?,?)')
       .run(evalId, prompt_id, sample_set_id, target_model_id, judge_model_id, 'pending', nowMs());

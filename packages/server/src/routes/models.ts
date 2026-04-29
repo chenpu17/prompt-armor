@@ -3,9 +3,15 @@ import { db, nowMs } from '../db/index.js';
 import { nanoid } from 'nanoid';
 import { chat } from '../llm/openai-compat.js';
 
+function maskKey(m: any) {
+  if (!m) return m;
+  const key: string = m.api_key || '';
+  return { ...m, api_key: key.length > 8 ? key.slice(0, 4) + '****' + key.slice(-4) : '****' };
+}
+
 export default async function (app: FastifyInstance) {
   app.get('/api/models', async () => {
-    return db.prepare('SELECT * FROM models ORDER BY created_at DESC').all();
+    return (db.prepare('SELECT * FROM models ORDER BY created_at DESC').all() as any[]).map(maskKey);
   });
 
   app.post('/api/models', async (req: any) => {
@@ -15,7 +21,7 @@ export default async function (app: FastifyInstance) {
     db.prepare(
       'INSERT INTO models (id,name,base_url,api_key,model,temperature,max_tokens,timeout_ms,notes,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)'
     ).run(id, name, base_url, api_key, model, temperature, max_tokens, timeout_ms, notes, nowMs());
-    return db.prepare('SELECT * FROM models WHERE id = ?').get(id);
+    return maskKey(db.prepare('SELECT * FROM models WHERE id = ?').get(id));
   });
 
   app.put('/api/models/:id', async (req: any) => {
@@ -24,10 +30,10 @@ export default async function (app: FastifyInstance) {
     const fields: string[] = [];
     const values: any[] = [];
     for (const k of allow) if (k in (req.body || {})) { fields.push(`${k} = ?`); values.push(req.body[k]); }
-    if (!fields.length) return db.prepare('SELECT * FROM models WHERE id = ?').get(id);
+    if (!fields.length) return maskKey(db.prepare('SELECT * FROM models WHERE id = ?').get(id));
     values.push(id);
     db.prepare(`UPDATE models SET ${fields.join(', ')} WHERE id = ?`).run(...values);
-    return db.prepare('SELECT * FROM models WHERE id = ?').get(id);
+    return maskKey(db.prepare('SELECT * FROM models WHERE id = ?').get(id));
   });
 
   app.delete('/api/models/:id', async (req: any) => {

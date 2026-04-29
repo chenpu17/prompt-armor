@@ -76,7 +76,8 @@ function getJudgeOverride() {
 }
 
 function getEnabledTools() {
-  return (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[]).map(toToolDef);
+  return (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[])
+    .map(toToolDef).filter((t): t is NonNullable<ReturnType<typeof toToolDef>> => t !== null);
 }
 
 function getAvailableToolMeta() {

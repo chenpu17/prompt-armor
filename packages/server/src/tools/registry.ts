@@ -629,13 +629,18 @@ export const BUILTIN_TOOLS: BuiltinTool[] = [
   },
 ];
 
-export function toToolDef(t: { name: string; description?: string; schema_json: string }): ToolDef {
-  return {
-    type: 'function',
-    function: {
-      name: t.name,
-      description: t.description || undefined,
-      parameters: JSON.parse(t.schema_json),
-    },
-  };
+export function toToolDef(t: { name: string; description?: string; schema_json: string }): ToolDef | null {
+  try {
+    return {
+      type: 'function',
+      function: {
+        name: t.name,
+        description: t.description || undefined,
+        parameters: JSON.parse(t.schema_json),
+      },
+    };
+  } catch {
+    console.warn(`[tools] toToolDef: skipping tool "${t.name}" — invalid schema_json`);
+    return null;
+  }
 }
