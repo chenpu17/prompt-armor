@@ -13,6 +13,7 @@ const ATTACK_CATS = [
 
 export default function Prompts() {
   const { t, i18n } = useTranslation();
+  const list = useStore(s => s.prompts);
   const models = useStore(s => s.models);
   const sets = useStore(s => s.sampleSets);
   const refresh = useStore(s => s.refresh);

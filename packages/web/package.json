@@ -1,11 +1,11 @@
 {
   "name": "@prompt-armor/web",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "tsc --noEmit && vite build"
   },
   "dependencies": {
     "framer-motion": "^11.5.4",

@@ -8,6 +8,8 @@ import { Wand2, ChevronRight, X } from 'lucide-react';
 
 export default function EvalReport() {
   const { t, i18n } = useTranslation();
+  const nav = useNavigate();
+  const { id } = useParams();
   const [list, setList] = useState<any[]>([]);
   const [evalRow, setEvalRow] = useState<any | null>(null);
   const [results, setResults] = useState<any[]>([]);
