@@ -5,6 +5,115 @@ import GlowCard, { PageHeader } from '../components/GlowCard';
 
 const DANGER = ['safe', 'sensitive', 'dangerous'];
 
+function ProfilesSection() {
+  const { t } = useTranslation();
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [allTools, setAllTools] = useState<any[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newDesc, setNewDesc] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  async function reload() {
+    const [p, t2] = await Promise.all([api.listToolProfiles(), api.listTools()]);
+    setProfiles(p);
+    setAllTools(t2);
+  }
+  useEffect(() => { reload(); }, []);
+
+  async function deleteProfile(id: string) {
+    if (!confirm(t('tools.profileDeleteConfirm') || 'Delete this profile?')) return;
+    await api.deleteToolProfile(id);
+    reload();
+  }
+
+  async function createProfile() {
+    if (!newName.trim()) return;
+    await api.createToolProfile({ name: newName.trim(), description: newDesc.trim(), tool_names: JSON.stringify([...selected]) });
+    setCreating(false); setNewName(''); setNewDesc(''); setSelected(new Set());
+    reload();
+  }
+
+  return (
+    <div className="mb-10">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-lg font-semibold text-white">{t('tools.profiles')}</h2>
+          <p className="text-xs text-slate-400 mt-0.5">{t('tools.profilesDesc')}</p>
+        </div>
+        <button className="btn-primary text-sm py-1.5 px-4" onClick={() => setCreating(c => !c)}>
+          + {t('tools.profileNew')}
+        </button>
+      </div>
+
+      {creating && (
+        <GlowCard className="mb-4 !p-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="label mb-1">{t('tools.profileNameLabel')}</label>
+              <input className="input" placeholder="My Agent Profile" value={newName} onChange={e => setNewName(e.target.value)} />
+            </div>
+            <div>
+              <label className="label mb-1">{t('tools.profilesDesc').split('；')[0]}</label>
+              <input className="input" placeholder="描述..." value={newDesc} onChange={e => setNewDesc(e.target.value)} />
+            </div>
+          </div>
+          <div className="mb-3 text-xs text-slate-400">{selected.size} / {allTools.filter(t2 => t2.enabled).length} {t('tools.profileToolCount')} selected</div>
+          <div className="max-h-48 overflow-y-auto grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-4 p-1">
+            {allTools.filter(t2 => t2.enabled).map((tool: any) => (
+              <label key={tool.name} className={`flex items-center gap-1.5 cursor-pointer rounded px-2 py-1 text-xs ${selected.has(tool.name) ? 'bg-violet1/20 text-violet1' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}>
+                <input type="checkbox" className="w-3 h-3" checked={selected.has(tool.name)} onChange={e => {
+                  const s = new Set(selected);
+                  e.target.checked ? s.add(tool.name) : s.delete(tool.name);
+                  setSelected(s);
+                }} />
+                <span className="font-mono">{tool.name}</span>
+              </label>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button className="btn-primary text-sm py-1.5 px-4" onClick={createProfile}>{t('tools.profileNew')}</button>
+            <button className="btn-ghost text-sm py-1.5 px-4" onClick={() => setCreating(false)}>Cancel</button>
+          </div>
+        </GlowCard>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {profiles.map((p: any) => {
+          const names: string[] = JSON.parse(p.tool_names || '[]');
+          return (
+            <GlowCard key={p.id} className="!p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm text-white">{p.name}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${p.is_builtin ? 'bg-violet1/20 text-violet1' : 'bg-neon/20 text-neon'}`}>
+                      {p.is_builtin ? t('tools.profileBuiltin') : t('tools.profileCustom')}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">{p.description}</div>
+                  <div className="text-xs text-neon mt-2">{names.length} {t('tools.profileToolCount')}</div>
+                  <div className="mt-2 flex flex-wrap gap-1 max-h-20 overflow-hidden">
+                    {names.slice(0, 12).map((n: string) => (
+                      <span key={n} className="text-[10px] font-mono bg-white/5 text-slate-400 px-1.5 py-0.5 rounded">{n}</span>
+                    ))}
+                    {names.length > 12 && <span className="text-[10px] text-slate-500">+{names.length - 12}</span>}
+                  </div>
+                </div>
+                {!p.is_builtin && (
+                  <button className="text-slate-500 hover:text-red-400 transition text-xs shrink-0" onClick={() => deleteProfile(p.id)}>
+                    {t('tools.profileDelete')}
+                  </button>
+                )}
+              </div>
+            </GlowCard>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function Tools() {
   const { t } = useTranslation();
   const [tools, setTools] = useState<any[]>([]);
@@ -21,6 +130,7 @@ export default function Tools() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <PageHeader title={t('tools.title')} subtitle={t('tools.subtitle')} />
+      <ProfilesSection />
       {DANGER.map(level => (
         <div key={level} className="mb-6">
           <div className="flex items-center gap-2 mb-3">

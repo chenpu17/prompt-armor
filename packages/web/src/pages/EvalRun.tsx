@@ -13,7 +13,8 @@ export default function EvalRun() {
   const [models, setModels] = useState<any[]>([]);
   const [prompts, setPrompts] = useState<any[]>([]);
   const [sets, setSets] = useState<any[]>([]);
-  const [form, setForm] = useState<any>({ prompt_id: '', sample_set_id: '', target_model_id: '', judge_model_id: '', concurrency: 4 });
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [form, setForm] = useState<any>({ prompt_id: '', sample_set_id: '', target_model_id: '', judge_model_id: '', concurrency: 4, profile_id: '' });
   const [evalId, setEvalId] = useState<string | null>(paramId || null);
   const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const [items, setItems] = useState<any[]>([]);
@@ -24,6 +25,7 @@ export default function EvalRun() {
     api.listModels().then(setModels);
     api.listPrompts().then(setPrompts);
     api.listSampleSets().then(setSets);
+    api.listToolProfiles().then(setProfiles);
   }, []);
 
   useEffect(() => {
@@ -58,6 +60,19 @@ export default function EvalRun() {
             <Selector label={t('eval.labelSampleSet')} value={form.sample_set_id} options={sets.map((s: any) => ({ value: s.id, label: `${s.name}（${s.sample_count}）` }))} onChange={(v: string) => setForm({ ...form, sample_set_id: v })} />
             <Selector label={t('eval.labelTarget')} value={form.target_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, target_model_id: v })} />
             <Selector label={t('eval.labelJudge')} value={form.judge_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, judge_model_id: v })} />
+            <div>
+              <div className="label">{t('eval.labelProfile')}</div>
+              <select className="input" value={form.profile_id} onChange={e => setForm({ ...form, profile_id: e.target.value })}>
+                <option value="">{t('eval.profileAll')}</option>
+                {profiles.map((p: any) => {
+                  const names = JSON.parse(p.tool_names || '[]');
+                  return <option key={p.id} value={p.id}>{p.name}（{names.length} {t('eval.tools')}）</option>;
+                })}
+              </select>
+              {form.profile_id && profiles.find((p: any) => p.id === form.profile_id)?.description && (
+                <div className="text-[11px] text-slate-500 mt-1">{profiles.find((p: any) => p.id === form.profile_id).description}</div>
+              )}
+            </div>
             <div>
               <div className="label">{t('eval.labelConcurrency')}</div>
               <input className="input" type="number" min={1} max={16} value={form.concurrency} onChange={e => setForm({ ...form, concurrency: Number(e.target.value) })} />

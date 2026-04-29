@@ -27,6 +27,9 @@ db.exec(schema);
 const migrations: string[] = [
   `ALTER TABLE auto_runs ADD COLUMN error_message TEXT`,
   `ALTER TABLE prompts ADD COLUMN token_count INTEGER`,
+  `CREATE TABLE IF NOT EXISTS tool_profiles (id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT, tool_names TEXT NOT NULL DEFAULT '[]', is_builtin INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL)`,
+  `ALTER TABLE evaluations ADD COLUMN profile_id TEXT`,
+  `ALTER TABLE auto_runs ADD COLUMN profile_id TEXT`,
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch { /* column already exists */ }

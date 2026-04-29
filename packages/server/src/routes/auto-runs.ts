@@ -47,7 +47,7 @@ export default async function (app: FastifyInstance) {
       seed_samples = [],
       generator_model_id, attacker_model_id, target_model_id, judge_model_id,
       max_iterations = 3, pass_threshold = 0.95, early_stop_patience = 2,
-      refresh_ratio = 0.3, initial_set_size = 24,
+      refresh_ratio = 0.3, initial_set_size = 24, profile_id,
     } = b;
     if (!name) throw app.httpErrors.badRequest('name required');
     if (!Array.isArray(seed_samples) || seed_samples.length === 0)
@@ -68,12 +68,12 @@ export default async function (app: FastifyInstance) {
     db.prepare(`INSERT INTO auto_runs (id,name,intent,business_context,
         generator_model_id,attacker_model_id,target_model_id,judge_model_id,
         max_iterations,pass_threshold,early_stop_patience,refresh_ratio,initial_set_size,
-        current_iteration,status,config_json,created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+        current_iteration,status,config_json,profile_id,created_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
       .run(id, name, intent, business_context,
         generator_model_id, attacker_model_id, target_model_id, judge_model_id,
         max_iterations, pass_threshold, early_stop_patience, refresh_ratio, initial_set_size,
-        0, 'pending', JSON.stringify({}), now);
+        0, 'pending', JSON.stringify({}), profile_id || null, now);
 
     // fire and forget
     startAutoRun({
@@ -86,6 +86,7 @@ export default async function (app: FastifyInstance) {
       refreshRatio: Math.max(0, Math.min(1, Number(refresh_ratio) || 0.3)),
       initialSetSize: Math.max(6, Math.min(80, Number(initial_set_size) || 24)),
       judgeSystemPromptOverride: (db.prepare("SELECT value FROM settings WHERE key = 'judge_system_prompt'").get() as any)?.value || undefined,
+      profileId: profile_id || undefined,
     });
 
     return { id, status: 'pending' };

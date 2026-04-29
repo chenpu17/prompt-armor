@@ -47,6 +47,11 @@ export const api = {
   // tools
   listTools: () => req('/api/tools'),
   updateTool: (name: string, b: any) => req(`/api/tools/${name}`, { method: 'PUT', body: JSON.stringify(b) }),
+  // tool profiles
+  listToolProfiles: () => req('/api/tool-profiles'),
+  createToolProfile: (b: any) => req('/api/tool-profiles', { method: 'POST', body: JSON.stringify(b) }),
+  updateToolProfile: (id: string, b: any) => req(`/api/tool-profiles/${id}`, { method: 'PUT', body: JSON.stringify(b) }),
+  deleteToolProfile: (id: string) => req(`/api/tool-profiles/${id}`, { method: 'DELETE' }),
   // evaluations
   listEvaluations: () => req('/api/evaluations'),
   getEvaluation: (id: string) => req(`/api/evaluations/${id}`),

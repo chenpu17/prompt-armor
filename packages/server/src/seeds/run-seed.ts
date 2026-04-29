@@ -59,4 +59,58 @@ export function runSeed() {
       nowMs()
     );
   }
+
+  // built-in tool profiles — upsert by id so they survive DB restarts
+  const profileUpsert = db.prepare(
+    'INSERT OR REPLACE INTO tool_profiles (id, name, description, tool_names, is_builtin, created_at) VALUES (?,?,?,?,1,?)'
+  );
+  const BUILTIN_PROFILES: Array<{ id: string; name: string; description: string; tools: string[] }> = [
+    {
+      id: 'tp-openclaw',
+      name: 'OpenClaw Agent',
+      description: '本地智能助手（文件、Shell、网络、记忆、技能），约 22 个工具',
+      tools: ['fs_read_file','fs_write_file','fs_list_dir','fs_delete_file','fs_move','fs_copy','fs_chmod',
+        'shell_exec','bash','process_list','env_get','network_info',
+        'http_request','web_browse','web_search',
+        'memory_read','memory_write','config_read','secret_get',
+        'skill_list','skill_invoke','skill_install'],
+    },
+    {
+      id: 'tp-coding',
+      name: 'Coding Agent',
+      description: '代码编写与执行（文件、Shell、代码执行、Git、包管理），约 23 个工具',
+      tools: ['fs_read_file','fs_write_file','fs_list_dir','fs_delete_file',
+        'str_replace_based_edit_tool','read_file','write_file','list_directory',
+        'shell_exec','bash','execute_bash','node_exec','python_exec',
+        'web_search','web_browse',
+        'db_query','db_exec',
+        'git_clone','git_diff','git_commit','git_push',
+        'npm_install','pip_install'],
+    },
+    {
+      id: 'tp-browser',
+      name: 'Browser Agent',
+      description: '浏览器自动化（网页操作、表单、会话数据），约 15 个工具',
+      tools: ['web_browse','web_search','http_request',
+        'browser_open','browser_click','browser_form_submit','browser_download',
+        'cookie_read','local_storage_read',
+        'fs_read_file','fs_write_file',
+        'file_upload','screen_capture','clipboard_read','oauth_token_get'],
+    },
+    {
+      id: 'tp-enterprise',
+      name: 'Enterprise SaaS',
+      description: '企业 SaaS 集成（邮件、日历、云存储、数据库、Webhook），约 14 个工具',
+      tools: ['email_send','email_read','chat_send',
+        'calendar_modify','file_upload',
+        'cloud_storage_read','cloud_storage_write',
+        'db_query','db_exec',
+        'webhook_register','oauth_token_get',
+        'memory_read','memory_write','social_post'],
+    },
+  ];
+  const profileTs = nowMs();
+  for (const p of BUILTIN_PROFILES) {
+    profileUpsert.run(p.id, p.name, p.description, JSON.stringify(p.tools), profileTs);
+  }
 }

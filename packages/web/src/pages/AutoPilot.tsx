@@ -45,6 +45,7 @@ export default function AutoPilot() {
   const nav = useNavigate();
   const { id: paramId } = useParams();
   const [models, setModels] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<any[]>([]);
   const [runs, setRuns] = useState<RunRow[]>([]);
   const [activeId, setActiveId] = useState<string | null>(paramId || null);
 
@@ -62,6 +63,7 @@ export default function AutoPilot() {
     pass_threshold: 0.95,
     refresh_ratio: 0.3,
     initial_set_size: 24,
+    profile_id: '',
   });
 
   async function reloadRuns() {
@@ -82,6 +84,7 @@ export default function AutoPilot() {
         }));
       }
     });
+    api.listToolProfiles().then(setProfiles);
     reloadRuns();
   }, []);
 
@@ -104,6 +107,7 @@ export default function AutoPilot() {
       pass_threshold: Number(form.pass_threshold) || 0.95,
       refresh_ratio: Number(form.refresh_ratio) || 0.3,
       initial_set_size: Number(form.initial_set_size) || 24,
+      profile_id: form.profile_id || undefined,
     };
     try {
       const r = await api.startAutoRun(body);
@@ -151,7 +155,7 @@ export default function AutoPilot() {
 
         <div className="col-span-12 lg:col-span-9 space-y-6">
           {!activeId ? (
-            <NewRunForm models={models} form={form} setForm={setForm} onStart={start} />
+            <NewRunForm models={models} profiles={profiles} form={form} setForm={setForm} onStart={start} />
           ) : (
             <RunDetail runId={activeId} onChanged={reloadRuns} />
           )}
@@ -174,7 +178,7 @@ function StatusPill({ status }: { status: string }) {
   return <span className={`text-[10px] px-2 py-0.5 rounded-full ${v.c}`}>{v.label}</span>;
 }
 
-function NewRunForm({ models, form, setForm, onStart }: any) {
+function NewRunForm({ models, profiles, form, setForm, onStart }: any) {
   const { t } = useTranslation();
   const ROLES: { key: string; label: string; hint: string }[] = [
     { key: 'generator_model_id', label: t('auto.roleGenerator'), hint: t('auto.roleGeneratorHint') },
@@ -241,6 +245,18 @@ function NewRunForm({ models, form, setForm, onStart }: any) {
           <input type="number" min={6} max={80} className="input"
             value={form.initial_set_size}
             onChange={e => setForm({ ...form, initial_set_size: e.target.value })} />
+        </Field>
+        <Field label={t('auto.fieldProfile')} hint={t('auto.fieldProfileHint')}>
+          <select className="input" value={form.profile_id} onChange={e => setForm({ ...form, profile_id: e.target.value })}>
+            <option value="">{t('auto.profileAll')}</option>
+            {profiles.map((p: any) => {
+              const names = JSON.parse(p.tool_names || '[]');
+              return <option key={p.id} value={p.id}>{p.name}（{names.length} {t('eval.tools')}）</option>;
+            })}
+          </select>
+          {form.profile_id && profiles.find((p: any) => p.id === form.profile_id)?.description && (
+            <div className="text-[11px] text-slate-500 mt-1">{profiles.find((p: any) => p.id === form.profile_id).description}</div>
+          )}
         </Field>
       </div>
       <div className="mt-6 flex justify-end">

@@ -27,6 +27,7 @@ export interface StartAutoRunParams {
   refreshRatio: number;
   initialSetSize: number;
   judgeSystemPromptOverride?: string;
+  profileId?: string;
 }
 
 const stopFlags = new Map<string, boolean>();
@@ -75,9 +76,14 @@ function getJudgeOverride() {
   return row?.value || undefined;
 }
 
-function getEnabledTools() {
-  return (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[])
+function getEnabledTools(profileId?: string) {
+  const all = (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[])
     .map(toToolDef).filter((t): t is NonNullable<ReturnType<typeof toToolDef>> => t !== null);
+  if (!profileId) return all;
+  const profile = db.prepare('SELECT * FROM tool_profiles WHERE id = ?').get(profileId) as any;
+  if (!profile) return all;
+  const names = new Set(JSON.parse(profile.tool_names || '[]') as string[]);
+  return all.filter(t => names.has(t.function.name));
 }
 
 function getAvailableToolMeta() {
@@ -231,7 +237,7 @@ export async function startAutoRun(p: StartAutoRunParams) {
         evaluationId: evalId,
         promptContent: promptRow?.content || '',
         samples: samplesForEval,
-        tools: getEnabledTools(),
+        tools: getEnabledTools(p.profileId),
         targetModel: p.target,
         judgeModel: p.judge,
         judgeSystemPromptOverride: p.judgeSystemPromptOverride,

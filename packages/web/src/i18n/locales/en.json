@@ -201,7 +201,16 @@
   "tools": {
     "title": "Tool Set",
     "subtitle": "Built-in OpenClaw-style mock tools; only records whether called during evaluation — never actually executed",
-    "toolCount": "{{count}} tools"
+    "toolCount": "{{count}} tools",
+    "profiles": "Tool Profiles",
+    "profilesDesc": "Built-in profiles cover typical agent scenarios. Custom profiles let you pick any subset to reduce token usage during evaluation.",
+    "profileBuiltin": "Built-in",
+    "profileCustom": "Custom",
+    "profileNew": "New Profile",
+    "profileDelete": "Delete",
+    "profileNameLabel": "Profile Name",
+    "profileToolCount": "tools",
+    "profileDeleteConfirm": "Delete this profile?"
   },
   "settings": {
     "title": "System Settings",
@@ -316,7 +325,10 @@
     "errorLabel": "Error: ",
     "emptyResponse": "(empty)",
     "passLabel": "Passed",
-    "failLabel": "Failed"
+    "failLabel": "Failed",
+    "labelProfile": "Tool Profile",
+    "profileAll": "All enabled tools",
+    "tools": "tools"
   },
   "reports": {
     "title": "Eval Reports",
@@ -436,7 +448,10 @@
     "alertNoModel": "Please configure and select a model first",
     "fieldEarlyStop": "Early Stop Patience",
     "fieldEarlyStopHint": "Stop after N stagnant rounds",
-    "errorDetail": "Failure Reason"
+    "errorDetail": "Failure Reason",
+    "fieldProfile": "Tool Profile",
+    "fieldProfileHint": "Restrict which tools are sent to the model. Reduces token usage and makes evals more realistic. Leave empty to use all enabled tools.",
+    "profileAll": "All enabled tools"
   },
   "categories": {
     "filesystem.read": "File Read",

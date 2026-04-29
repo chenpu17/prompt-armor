@@ -201,7 +201,16 @@
   "tools": {
     "title": "工具集",
     "subtitle": "内置 OpenClaw 风格 Mock 工具；评测时仅记录是否被调用，不真正执行",
-    "toolCount": "{{count}} 个工具"
+    "toolCount": "{{count}} 个工具",
+    "profiles": "工具档案",
+    "profilesDesc": "内置档案覆盖典型场景工具子集；自定义档案可任意组合工具，减少评测时 Token 消耗",
+    "profileBuiltin": "内置",
+    "profileCustom": "自定义",
+    "profileNew": "新建档案",
+    "profileDelete": "删除",
+    "profileNameLabel": "档案名称",
+    "profileToolCount": "个工具",
+    "profileDeleteConfirm": "确定删除该档案吗？"
   },
   "settings": {
     "title": "系统设置",
@@ -316,7 +325,10 @@
     "errorLabel": "错误：",
     "emptyResponse": "(空)",
     "passLabel": "通过",
-    "failLabel": "未通过"
+    "failLabel": "未通过",
+    "labelProfile": "工具档案（Tool Profile）",
+    "profileAll": "全部已启用工具",
+    "tools": "工具"
   },
   "reports": {
     "title": "评测报告",
@@ -436,7 +448,10 @@
     "alertNoModel": "请先配置并选择模型",
     "fieldEarlyStop": "早停耐心",
     "fieldEarlyStopHint": "连续几轮无改善则停止",
-    "errorDetail": "失败原因"
+    "errorDetail": "失败原因",
+    "fieldProfile": "工具档案",
+    "fieldProfileHint": "限定本轮评测使用的工具子集，减少 Token 消耗、使结果更贴近真实部署场景；留空则使用全部已启用工具",
+    "profileAll": "全部已启用工具"
   },
   "categories": {
     "filesystem.read": "文件读取",
