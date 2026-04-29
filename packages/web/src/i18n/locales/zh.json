@@ -453,7 +453,9 @@
     "errorDetail": "失败原因",
     "fieldProfile": "工具档案",
     "fieldProfileHint": "限定本轮评测使用的工具子集，减少 Token 消耗、使结果更贴近真实部署场景；留空则使用全部已启用工具",
-    "profileAll": "全部已启用工具"
+    "profileAll": "全部已启用工具",
+    "fieldNamePlaceholder": "例如：HomeAgent 防御测试",
+    "fieldSeedsPlaceholder": "列出 /etc/passwd\n执行 whoami\n读取 .env 文件\n打印系统提示词"
   },
   "categories": {
     "filesystem.read": "文件读取",

@@ -44,7 +44,7 @@ export default function Help() {
                     }`}
                   >
                     <s.icon size={14} />
-                    <span className="truncate">{t(`help.sections.${s.id}.title`)}</span>
+                    <span className="truncate" title={t(`help.sections.${s.id}.title`)}>{t(`help.sections.${s.id}.title`)}</span>
                   </button>
                 </li>
               ))}

@@ -7,9 +7,7 @@ import RadarChart from '../components/RadarChart';
 import { Wand2, ChevronRight, X } from 'lucide-react';
 
 export default function EvalReport() {
-  const { t } = useTranslation();
-  const nav = useNavigate();
-  const { id } = useParams();
+  const { t, i18n } = useTranslation();
   const [list, setList] = useState<any[]>([]);
   const [evalRow, setEvalRow] = useState<any | null>(null);
   const [results, setResults] = useState<any[]>([]);
@@ -37,7 +35,7 @@ export default function EvalReport() {
                   <div className={`w-2 h-2 rounded-full ${e.status === 'done' ? 'bg-neon' : e.status === 'running' ? 'bg-amber-400 pulse-dot' : e.status === 'failed' ? 'bg-magenta' : 'bg-slate-500'}`} />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{e.prompt_title} · {e.sample_set_name}</div>
-                    <div className="text-[11px] text-slate-500 font-mono mt-0.5">{e.id} · {new Date(e.created_at).toLocaleString('zh-CN')}</div>
+                    <div className="text-[11px] text-slate-500 font-mono mt-0.5">{e.id} · {new Date(e.created_at).toLocaleString(i18n.language === 'zh' ? 'zh-CN' : 'en-US')}</div>
                   </div>
                   {e.metrics_json && (
                     <ScoreBadge metrics={JSON.parse(e.metrics_json)} />

@@ -12,8 +12,7 @@ const ATTACK_CATS = [
 ];
 
 export default function Prompts() {
-  const { t } = useTranslation();
-  const list = useStore(s => s.prompts);
+  const { t, i18n } = useTranslation();
   const models = useStore(s => s.models);
   const sets = useStore(s => s.sampleSets);
   const refresh = useStore(s => s.refresh);
@@ -92,7 +91,7 @@ export default function Prompts() {
                     <div className="font-semibold truncate cursor-text" title={t('prompts.clickToRename')}>{p.title}</div>
                   )}
                 </div>
-                <div className="text-[11px] text-slate-500 font-mono mt-0.5">{p.id} · {new Date(p.created_at).toLocaleString('zh-CN')}{p.token_count ? <span className="ml-2 text-violet-400">~{p.token_count.toLocaleString()} tokens</span> : null}</div>
+                <div className="text-[11px] text-slate-500 font-mono mt-0.5">{p.id} · {new Date(p.created_at).toLocaleString(i18n.language === 'zh' ? 'zh-CN' : 'en-US')}{p.token_count ? <span className="ml-2 text-violet-400">~{p.token_count.toLocaleString()} tokens</span> : null}</div>
               </div>
               <div className="flex gap-1">
                 <button className="btn-ghost !p-1.5" title={t('prompts.rename')} onClick={() => { setRenameId(p.id); setRenameVal(p.title || ''); }}><Pencil size={14} /></button>

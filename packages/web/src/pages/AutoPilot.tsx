@@ -297,7 +297,7 @@ function parseSeedSamples(text: string) {
 }
 
 function RunDetail({ runId, onChanged }: { runId: string; onChanged: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const PHASE_LABEL = getPhaseLabel(t);
   const nav = useNavigate();
   const [run, setRun] = useState<any>(null);
@@ -392,7 +392,7 @@ function RunDetail({ runId, onChanged }: { runId: string; onChanged: () => void 
               <div className="text-lg font-bold">{run.name}</div>
               <StatusPill status={run.status} />
             </div>
-            <div className="text-xs text-slate-500 mt-1">{new Date(run.created_at).toLocaleString('zh-CN')}</div>
+            <div className="text-xs text-slate-500 mt-1">{new Date(run.created_at).toLocaleString(i18n.language === 'zh' ? 'zh-CN' : 'en-US')}</div>
           </div>
           <div className="flex gap-2">
             {run.status === 'running' && (
@@ -500,7 +500,7 @@ function RunDetail({ runId, onChanged }: { runId: string; onChanged: () => void 
               l.type === 'phase' ? 'text-cyan-300' :
               'text-slate-300'
             }>
-              <span className="text-slate-600">[{new Date(l.ts).toLocaleTimeString('zh-CN')}]</span> {l.text}
+              <span className="text-slate-600">[{new Date(l.ts).toLocaleTimeString(i18n.language === 'zh' ? 'zh-CN' : 'en-US')}]</span> {l.text}
             </div>
           ))}
         </div>

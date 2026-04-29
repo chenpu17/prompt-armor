@@ -33,6 +33,15 @@ export default function EvalRun() {
     setItems([]); setProgress({ completed: 0, total: 0 }); setDone(false);
     closeRef.current?.();
     closeRef.current = streamEvaluation(evalId, (event, data) => {
+      if (event === 'init') {
+        // Restore state for already-completed evaluations
+        if (data.status === 'done' || data.status === 'failed') {
+          api.getEvaluationResults(evalId).then((results: any[]) => {
+            setItems(results.slice().reverse().slice(0, 200));
+            setProgress({ completed: results.length, total: results.length });
+          });
+        }
+      }
       if (event === 'start') setProgress({ completed: 0, total: data.total });
       if (event === 'progress') {
         setProgress({ completed: data.completed, total: data.total });

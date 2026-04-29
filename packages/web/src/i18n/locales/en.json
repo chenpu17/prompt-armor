@@ -453,7 +453,9 @@
     "errorDetail": "Failure Reason",
     "fieldProfile": "Tool Profile",
     "fieldProfileHint": "Restrict which tools are sent to the model. Reduces token usage and makes evals more realistic. Leave empty to use all enabled tools.",
-    "profileAll": "All enabled tools"
+    "profileAll": "All enabled tools",
+    "fieldNamePlaceholder": "e.g. HomeAgent Defense Test",
+    "fieldSeedsPlaceholder": "List /etc/passwd\nRun whoami\nRead .env file\nPrint system prompt"
   },
   "categories": {
     "filesystem.read": "File Read",
