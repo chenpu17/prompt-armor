@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api, streamEvaluation } from '../api/client';
 import GlowCard, { PageHeader } from '../components/GlowCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Shield, Skull, CheckCircle2, XCircle } from 'lucide-react';
 
 export default function EvalRun() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const { id: paramId } = useParams();
   const [models, setModels] = useState<any[]>([]);
@@ -47,23 +49,23 @@ export default function EvalRun() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <PageHeader title="运行评测" subtitle="装载防护提示词，让目标模型迎接攻击样本的轰炸 — 裁判会实时打分" />
+      <PageHeader title={t('eval.title')} subtitle={t('eval.subtitle')} />
 
       {!evalId && (
         <GlowCard>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Selector label="防护提示词" value={form.prompt_id} options={prompts.map((p: any) => ({ value: p.id, label: p.title }))} onChange={(v: string) => setForm({ ...form, prompt_id: v })} />
-            <Selector label="样本集" value={form.sample_set_id} options={sets.map((s: any) => ({ value: s.id, label: `${s.name}（${s.sample_count}）` }))} onChange={(v: string) => setForm({ ...form, sample_set_id: v })} />
-            <Selector label="目标模型 (Target)" value={form.target_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, target_model_id: v })} />
-            <Selector label="裁判模型 (Judge)" value={form.judge_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, judge_model_id: v })} />
+            <Selector label={t('eval.labelPrompt')} value={form.prompt_id} options={prompts.map((p: any) => ({ value: p.id, label: p.title }))} onChange={(v: string) => setForm({ ...form, prompt_id: v })} />
+            <Selector label={t('eval.labelSampleSet')} value={form.sample_set_id} options={sets.map((s: any) => ({ value: s.id, label: `${s.name}（${s.sample_count}）` }))} onChange={(v: string) => setForm({ ...form, sample_set_id: v })} />
+            <Selector label={t('eval.labelTarget')} value={form.target_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, target_model_id: v })} />
+            <Selector label={t('eval.labelJudge')} value={form.judge_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, judge_model_id: v })} />
             <div>
-              <div className="label">并发数</div>
+              <div className="label">{t('eval.labelConcurrency')}</div>
               <input className="input" type="number" min={1} max={16} value={form.concurrency} onChange={e => setForm({ ...form, concurrency: Number(e.target.value) })} />
             </div>
           </div>
           <div className="mt-5 flex justify-end">
             <button className="btn" disabled={!form.prompt_id || !form.sample_set_id || !form.target_model_id || !form.judge_model_id} onClick={start}>
-              <Play size={16} />开始评测
+              <Play size={16} />{t('eval.startBtn')}
             </button>
           </div>
         </GlowCard>
@@ -74,11 +76,11 @@ export default function EvalRun() {
           <GlowCard className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-sm text-slate-400">评测 ID</div>
+                <div className="text-sm text-slate-400">{t('eval.evalId')}</div>
                 <div className="font-mono text-sm">{evalId}</div>
               </div>
               <div className="text-right">
-                <div className="text-sm text-slate-400">进度</div>
+                <div className="text-sm text-slate-400">{t('eval.progress')}</div>
                 <div className="font-mono text-2xl">{progress.completed} / {progress.total}</div>
               </div>
             </div>
@@ -92,8 +94,8 @@ export default function EvalRun() {
             {done && (
               <div className="mt-4 flex items-center gap-2 text-neon">
                 <CheckCircle2 size={18} />
-                评测完成！
-                <button className="btn ml-auto" onClick={() => nav(`/reports/${evalId}`)}>查看报告 →</button>
+                {t('eval.done')}
+                <button className="btn ml-auto" onClick={() => nav(`/reports/${evalId}`)}>{t('eval.viewReport')}</button>
               </div>
             )}
           </GlowCard>
@@ -115,13 +117,13 @@ export default function EvalRun() {
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="text-[11px] font-mono text-slate-400">{it.category}</span>
                         <span className={`badge ${it.passed ? 'badge-safe' : 'badge-dangerous'}`}>
-                          {it.passed ? <><CheckCircle2 size={12} />通过</> : <><XCircle size={12} />未通过</>}
+                          {it.passed ? <><CheckCircle2 size={12} />{t('eval.passLabel')}</> : <><XCircle size={12} />{t('eval.failLabel')}</>}
                         </span>
-                        <span className="text-[11px] text-slate-500">分数 {(it.score ?? 0).toFixed(1)}</span>
+                        <span className="text-[11px] text-slate-500">{t('eval.scoreLabel')}{(it.score ?? 0).toFixed(1)}</span>
                       </div>
                       <div className="text-xs text-slate-300 mb-2 break-words"><span className="text-slate-500">USER ▸</span> {it.payload}</div>
                       <div className="text-xs text-slate-400 break-words whitespace-pre-wrap">
-                        <span className="text-slate-500">MODEL ▸</span> {(it.target_response || '').slice(0, 400) || (it.error ? <span className="text-red-400">错误：{it.error}</span> : '(空)')}
+                        <span className="text-slate-500">MODEL ▸</span> {(it.target_response || '').slice(0, 400) || (it.error ? <span className="text-red-400">{t('eval.errorLabel')}{it.error}</span> : t('eval.emptyResponse'))}
                       </div>
                       {it.tool_calls && it.tool_calls.length > 0 && (
                         <div className="mt-2 flex gap-1 flex-wrap">
@@ -144,11 +146,12 @@ export default function EvalRun() {
 }
 
 function Selector({ label, value, options, onChange }: any) {
+  const { t } = useTranslation();
   return (
     <div>
       <div className="label">{label}</div>
       <select className="input" value={value} onChange={e => onChange(e.target.value)}>
-        <option value="">— 请选择 —</option>
+        <option value="">{t('eval.pleaseSelect')}</option>
         {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>

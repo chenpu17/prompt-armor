@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import GlowCard, { PageHeader } from '../components/GlowCard';
 import RadarChart from '../components/RadarChart';
 import { Wand2, ChevronRight, X } from 'lucide-react';
 
 export default function EvalReport() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const { id } = useParams();
   const [list, setList] = useState<any[]>([]);
@@ -26,7 +28,7 @@ export default function EvalReport() {
   if (!id) {
     return (
       <div className="p-8 max-w-7xl mx-auto">
-        <PageHeader title="评测报告" subtitle="所有历史评测结果" />
+        <PageHeader title={t('reports.title')} subtitle={t('reports.subtitle')} />
         <div className="space-y-2">
           {list.map(e => (
             <Link to={`/reports/${e.id}`} key={e.id} className="block">
@@ -45,7 +47,7 @@ export default function EvalReport() {
               </GlowCard>
             </Link>
           ))}
-          {!list.length && <div className="text-center py-16 text-slate-500">还没有评测记录</div>}
+          {!list.length && <div className="text-center py-16 text-slate-500">{t('reports.empty')}</div>}
         </div>
       </div>
     );
@@ -68,20 +70,20 @@ export default function EvalReport() {
       });
       setOptOpen(false);
       nav('/prompts');
-    } catch (e: any) { alert('优化失败: ' + e.message); }
+    } catch (e: any) { alert(t('reports.optFailed') + e.message); }
     finally { setBusy(false); }
   }
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <PageHeader
-        title="评测报告"
-        subtitle={evalRow ? `${evalRow.id}` : '加载中…'}
+        title={t('reports.title')}
+        subtitle={evalRow ? `${evalRow.id}` : t('reports.loading')}
         actions={
           <>
-            <Link to="/reports" className="btn-ghost">← 返回列表</Link>
+            <Link to="/reports" className="btn-ghost">{t('reports.backToList')}</Link>
             <button className="btn" onClick={() => setOptOpen(true)} disabled={!failed.length}>
-              <Wand2 size={16} />基于失败用例优化提示词 ({failed.length})
+              <Wand2 size={16} />{t('reports.optimizeBtn', { count: failed.length })}
             </button>
           </>
         }
@@ -90,33 +92,33 @@ export default function EvalReport() {
       {metrics && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           <GlowCard className="lg:col-span-2">
-            <div className="text-sm text-slate-400 mb-3">分类通过率雷达</div>
+            <div className="text-sm text-slate-400 mb-3">{t('reports.radarTitle')}</div>
             <RadarChart data={radar} />
           </GlowCard>
           <GlowCard>
-            <div className="text-sm text-slate-400 mb-3">汇总指标</div>
+            <div className="text-sm text-slate-400 mb-3">{t('reports.statsTitle')}</div>
             <div className="space-y-3">
-              <Stat label="总样本数" v={metrics.total} />
-              <Stat label="攻击拒绝率" v={pct(metrics.attack_pass_rate)} good />
-              <Stat label="正常通过率" v={pct(metrics.benign_pass_rate)} good />
-              <Stat label="禁用工具触发率" v={pct(metrics.forbidden_tool_trigger_rate)} bad />
-              <Stat label="信息泄露率" v={pct(metrics.info_leak_rate)} bad />
-              <Stat label="平均裁判分" v={(metrics.avg_judge_score || 0).toFixed(2) + ' / 10'} />
+              <Stat label={t('reports.statTotal')} v={metrics.total} />
+              <Stat label={t('reports.statAttack')} v={pct(metrics.attack_pass_rate)} good />
+              <Stat label={t('reports.statBenign')} v={pct(metrics.benign_pass_rate)} good />
+              <Stat label={t('reports.statForbidden')} v={pct(metrics.forbidden_tool_trigger_rate)} bad />
+              <Stat label={t('reports.statLeak')} v={pct(metrics.info_leak_rate)} bad />
+              <Stat label={t('reports.statJudge')} v={(metrics.avg_judge_score || 0).toFixed(2) + ' / 10'} />
             </div>
           </GlowCard>
         </div>
       )}
 
       <GlowCard>
-        <div className="text-sm text-slate-400 mb-3">{failed.length ? `失败用例 ${failed.length} / ${results.length}` : `所有用例（${results.length}）`}</div>
+        <div className="text-sm text-slate-400 mb-3">{failed.length ? t('reports.failCases', { failed: failed.length, total: results.length }) : t('reports.allCases', { total: results.length })}</div>
         <div className="space-y-2 max-h-[60vh] overflow-auto">
           {(failed.length ? failed : results).map(r => (
             <div key={r.id} className={`p-3 rounded-xl bg-black/30 border ${r.passed ? 'border-emerald-500/20' : 'border-magenta/30'}`}>
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className={`badge ${r.passed ? 'badge-safe' : 'badge-dangerous'}`}>{r.passed ? '通过' : '未通过'}</span>
+                <span className={`badge ${r.passed ? 'badge-safe' : 'badge-dangerous'}`}>{r.passed ? t('reports.passed') : t('reports.notPassed')}</span>
                 <span className={`badge ${r.is_attack ? 'badge-dangerous' : 'badge-safe'}`}>{r.is_attack ? 'ATTACK' : 'BENIGN'}</span>
                 <span className="text-[11px] font-mono text-slate-500">{r.category}</span>
-                <span className="text-[11px] text-slate-500">分数 {(r.judge_score ?? 0).toFixed(1)}</span>
+                <span className="text-[11px] text-slate-500">{t('reports.scoreLabel')}{(r.judge_score ?? 0).toFixed(1)}</span>
               </div>
               <div className="text-xs"><span className="text-slate-500">U:</span> {r.payload}</div>
               <div className="text-xs text-slate-400 mt-1 whitespace-pre-wrap"><span className="text-slate-500">M:</span> {(r.target_response || '').slice(0, 400)}</div>
@@ -135,26 +137,26 @@ export default function EvalReport() {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="glass p-6 max-w-lg w-full">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2"><Wand2 className="text-neon" size={20} />基于失败用例优化</h2>
+              <h2 className="text-xl font-semibold flex items-center gap-2"><Wand2 className="text-neon" size={20} />{t('reports.optTitle')}</h2>
               <button className="btn-ghost !p-1.5" onClick={() => setOptOpen(false)}><X size={16} /></button>
             </div>
             <div className="space-y-3">
               <div>
-                <div className="label">PromptGenerator 模型</div>
+                <div className="label">{t('reports.optModel')}</div>
                 <select className="input" value={optForm.generator_model_id} onChange={e => setOptForm({ ...optForm, generator_model_id: e.target.value })}>
-                  <option value="">— 请选择 —</option>
+                  <option value="">{t('eval.pleaseSelect')}</option>
                   {models.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
                 </select>
               </div>
-              <div><div className="label">新版本标题（可选）</div><input className="input" value={optForm.title} onChange={e => setOptForm({ ...optForm, title: e.target.value })} /></div>
-              <div><div className="label">额外要求（可选）</div><textarea className="input min-h-[60px]" value={optForm.extra_requirements} onChange={e => setOptForm({ ...optForm, extra_requirements: e.target.value })} /></div>
-              <div className="text-xs text-slate-400 bg-violet1/10 border border-violet1/30 rounded-lg p-3">
-                将基于本次评测的 <b>{failed.length}</b> 个失败用例，让 PromptGenerator 在原 prompt 上有针对性地修补。
-              </div>
+              <div><div className="label">{t('reports.optNewTitle')}</div><input className="input" value={optForm.title} onChange={e => setOptForm({ ...optForm, title: e.target.value })} /></div>
+              <div><div className="label">{t('reports.optExtra')}</div><textarea className="input min-h-[60px]" value={optForm.extra_requirements} onChange={e => setOptForm({ ...optForm, extra_requirements: e.target.value })} /></div>
+              <div className="text-xs text-slate-400 bg-violet1/10 border border-violet1/30 rounded-lg p-3"
+                dangerouslySetInnerHTML={{ __html: t('reports.failInfo', { count: failed.length }) }}
+              />
             </div>
             <div className="flex justify-end gap-2 mt-5">
-              <button className="btn-ghost" onClick={() => setOptOpen(false)}>取消</button>
-              <button className="btn" disabled={!optForm.generator_model_id || busy} onClick={optimize}>{busy ? '优化中…' : '生成新版本'}</button>
+              <button className="btn-ghost" onClick={() => setOptOpen(false)}>{t('reports.optCancel')}</button>
+              <button className="btn" disabled={!optForm.generator_model_id || busy} onClick={optimize}>{busy ? t('reports.optBusy') : t('reports.optSubmit')}</button>
             </div>
           </div>
         </div>
@@ -168,12 +170,13 @@ function Stat({ label, v, good, bad }: any) {
 }
 function pct(v: number) { return ((v || 0) * 100).toFixed(1) + '%'; }
 function ScoreBadge({ metrics }: any) {
+  const { t } = useTranslation();
   const ap = (metrics.attack_pass_rate || 0) * 100;
   const bp = (metrics.benign_pass_rate || 0) * 100;
   return (
     <div className="flex gap-2 text-[11px] font-mono">
-      <span className="badge badge-dangerous">攻击 {ap.toFixed(0)}%</span>
-      <span className="badge badge-safe">正常 {bp.toFixed(0)}%</span>
+      <span className="badge badge-dangerous">{t('reports.badgeAttack', { pct: ap.toFixed(0) })}</span>
+      <span className="badge badge-safe">{t('reports.badgeBenign', { pct: bp.toFixed(0) })}</span>
     </div>
   );
 }

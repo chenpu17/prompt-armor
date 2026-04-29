@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import GlowCard, { PageHeader } from '../components/GlowCard';
 import { Settings as SettingsIcon, Save, RotateCcw, Eye } from 'lucide-react';
 
 type SettingItem = { value: string; default: string; description: string; updated_at: number | null };
 
 export default function Settings() {
+  const { t } = useTranslation();
   const [data, setData] = useState<Record<string, SettingItem> | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
@@ -29,10 +31,10 @@ export default function Settings() {
         body: JSON.stringify({ value: draft[key] || '' }),
       });
       if (!r.ok) throw new Error(await r.text());
-      setMsg('已保存：' + key);
+      setMsg(t('settings.savedKey', { key }));
       await load();
     } catch (e: any) {
-      setMsg('保存失败: ' + e.message);
+      setMsg(t('settings.saveFailed', { msg: e.message }));
     } finally {
       setSaving(null);
       setTimeout(() => setMsg(null), 2500);
@@ -40,22 +42,22 @@ export default function Settings() {
   }
 
   async function reset(key: string) {
-    if (!confirm('恢复为内置默认（清空自定义）？')) return;
+    if (!confirm(t('settings.resetConfirm'))) return;
     await fetch('/api/settings/' + key, { method: 'DELETE' });
     await load();
-    setMsg('已恢复默认：' + key);
+    setMsg(t('settings.restoredKey', { key }));
     setTimeout(() => setMsg(null), 2500);
   }
 
-  if (!data) return <div className="p-8 text-slate-500">加载中…</div>;
+  if (!data) return <div className="p-8 text-slate-500">{t('settings.loading')}</div>;
 
   const labels: Record<string, string> = {
-    judge_system_prompt: '评测裁判 System Prompt',
+    judge_system_prompt: t('settings.labelJudgePrompt'),
   };
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
-      <PageHeader title="系统设置" subtitle="自定义 AI 角色的系统提示词等内部参数" icon={SettingsIcon} />
+      <PageHeader title={t('settings.title')} subtitle={t('settings.subtitle')} />
       {msg && <div className="mb-4 px-4 py-2 rounded-lg bg-violet1/20 border border-violet1/40 text-sm">{msg}</div>}
 
       <div className="space-y-6">
@@ -69,20 +71,20 @@ export default function Settings() {
                   <div className="text-lg font-semibold flex items-center gap-2">
                     {labels[key] || key}
                     {isCustom ? (
-                      <span className="badge badge-medium">已自定义</span>
+                      <span className="badge badge-medium">{t('settings.customized')}</span>
                     ) : (
-                      <span className="badge badge-low">使用默认</span>
+                      <span className="badge badge-low">{t('settings.usingDefault')}</span>
                     )}
                   </div>
                   <div className="text-xs text-slate-500 mt-1">{item.description}</div>
                 </div>
                 <div className="flex gap-2">
                   <button className="btn-ghost text-xs" onClick={() => setShowDefault(s => ({ ...s, [key]: !s[key] }))}>
-                    <Eye size={14} />{showDef ? '隐藏默认' : '查看默认'}
+                    <Eye size={14} />{showDef ? t('settings.hideDefault') : t('settings.showDefault')}
                   </button>
                   {isCustom && (
                     <button className="btn-ghost text-xs" onClick={() => reset(key)}>
-                      <RotateCcw size={14} />恢复默认
+                      <RotateCcw size={14} />{t('settings.resetBtn')}
                     </button>
                   )}
                 </div>
@@ -94,11 +96,11 @@ export default function Settings() {
                 className="input min-h-[260px] font-mono text-xs"
                 value={draft[key] ?? ''}
                 onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))}
-                placeholder={`留空则使用内置默认。\n\n${item.default.slice(0, 200)}…`}
+                placeholder={t('settings.placeholder') + '\n\n' + item.default.slice(0, 200) + '…'}
               />
               <div className="flex justify-end mt-3">
                 <button className="btn" disabled={saving === key} onClick={() => save(key)}>
-                  <Save size={16} />{saving === key ? '保存中…' : '保存'}
+                  <Save size={16} />{saving === key ? t('settings.savingBtn') : t('settings.saveBtn')}
                 </button>
               </div>
             </GlowCard>

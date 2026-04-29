@@ -5,8 +5,10 @@ import GlowCard, { PageHeader } from '../components/GlowCard';
 import RadarChart from '../components/RadarChart';
 import { Activity, Shield, Cpu, Target as TargetIcon, FileText, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<any>({ models: 0, prompts: 0, samples: 0, evals: 0, lastEval: null });
 
   useEffect(() => {
@@ -27,10 +29,10 @@ export default function Dashboard() {
   }, []);
 
   const cards = [
-    { icon: Cpu, label: '已配置模型', val: stats.models, hint: 'PromptGen / Attack / Target / Judge', accent: 'rgba(124,77,255,0.45)', to: '/models' },
-    { icon: FileText, label: '防护提示词版本', val: stats.prompts, hint: '基线 + 生成 + 优化', accent: 'rgba(236,72,153,0.45)', to: '/prompts' },
-    { icon: TargetIcon, label: '攻击样本总数', val: stats.samples, hint: '红队 + 正常对照', accent: 'rgba(6,255,165,0.45)', to: '/samples' },
-    { icon: Activity, label: '历史评测次数', val: stats.evals, hint: '可在报告页查看详情', accent: 'rgba(124,77,255,0.45)', to: '/reports' },
+    { icon: Cpu, label: t('dashboard.cardModels'), val: stats.models, hint: t('dashboard.cardModelsHint'), accent: 'rgba(124,77,255,0.45)', to: '/models' },
+    { icon: FileText, label: t('dashboard.cardPrompts'), val: stats.prompts, hint: t('dashboard.cardPromptsHint'), accent: 'rgba(236,72,153,0.45)', to: '/prompts' },
+    { icon: TargetIcon, label: t('dashboard.cardSamples'), val: stats.samples, hint: t('dashboard.cardSamplesHint'), accent: 'rgba(6,255,165,0.45)', to: '/samples' },
+    { icon: Activity, label: t('dashboard.cardEvals'), val: stats.evals, hint: t('dashboard.cardEvalsHint'), accent: 'rgba(124,77,255,0.45)', to: '/reports' },
   ];
 
   const radar = stats.lastEval?.metrics?.per_category
@@ -42,7 +44,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <PageHeader title="LLM 防护提示词工厂" subtitle="生成 · 优化 · 评测 — 让你的 AI 应用拥有可量化的安全策略" />
+      <PageHeader title={t('dashboard.title')} subtitle={t('dashboard.subtitle')} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {cards.map((c, i) => (
           <Link to={c.to} key={c.label}>
@@ -67,36 +69,36 @@ export default function Dashboard() {
         <GlowCard className="lg:col-span-2" delay={0.2}>
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="text-sm text-slate-400">最近一次评测 · 分类通过率雷达</div>
+              <div className="text-sm text-slate-400">{t('dashboard.radarTitle')}</div>
               <div className="font-semibold mt-0.5">
-                {stats.lastEval ? stats.lastEval.prompt_title || stats.lastEval.prompt_id : '尚无评测数据'}
+                {stats.lastEval ? stats.lastEval.prompt_title || stats.lastEval.prompt_id : t('dashboard.noEval')}
               </div>
             </div>
             {stats.lastEval && (
-              <Link to={`/reports/${stats.lastEval.id}`} className="btn-ghost">查看报告</Link>
+              <Link to={`/reports/${stats.lastEval.id}`} className="btn-ghost">{t('dashboard.viewReport')}</Link>
             )}
           </div>
           {radar.length ? <RadarChart data={radar} /> : (
             <div className="h-[260px] flex flex-col items-center justify-center text-slate-500">
               <Shield size={48} className="mb-3 opacity-40" />
-              <div className="text-sm">先去【运行评测】跑一次，看看你的提示词扛不扛打</div>
-              <Link to="/eval" className="btn mt-4">运行评测 →</Link>
+              <div className="text-sm">{t('dashboard.noEvalHint')}</div>
+              <Link to="/eval" className="btn mt-4">{t('dashboard.runEval')}</Link>
             </div>
           )}
         </GlowCard>
 
         <GlowCard delay={0.3}>
-          <div className="text-sm text-slate-400 mb-3">关键指标</div>
+          <div className="text-sm text-slate-400 mb-3">{t('dashboard.keyMetrics')}</div>
           {stats.lastEval ? (
             <div className="space-y-3">
-              <Metric label="攻击拒绝率" value={pct(stats.lastEval.metrics.attack_pass_rate)} good />
-              <Metric label="正常通过率" value={pct(stats.lastEval.metrics.benign_pass_rate)} good />
-              <Metric label="危险工具误触发" value={pct(stats.lastEval.metrics.forbidden_tool_trigger_rate)} bad />
-              <Metric label="信息泄露率" value={pct(stats.lastEval.metrics.info_leak_rate)} bad />
-              <Metric label="平均裁判分" value={(stats.lastEval.metrics.avg_judge_score || 0).toFixed(2) + ' / 10'} />
+              <Metric label={t('dashboard.metricAttack')} value={pct(stats.lastEval.metrics.attack_pass_rate)} good />
+              <Metric label={t('dashboard.metricBenign')} value={pct(stats.lastEval.metrics.benign_pass_rate)} good />
+              <Metric label={t('dashboard.metricForbidden')} value={pct(stats.lastEval.metrics.forbidden_tool_trigger_rate)} bad />
+              <Metric label={t('dashboard.metricLeak')} value={pct(stats.lastEval.metrics.info_leak_rate)} bad />
+              <Metric label={t('dashboard.metricJudge')} value={(stats.lastEval.metrics.avg_judge_score || 0).toFixed(2) + ' / 10'} />
             </div>
           ) : (
-            <div className="text-slate-500 text-sm">完成首次评测后这里会显示。</div>
+            <div className="text-slate-500 text-sm">{t('dashboard.noMetrics')}</div>
           )}
         </GlowCard>
       </div>
@@ -105,13 +107,13 @@ export default function Dashboard() {
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
         className="mt-6 glass p-5"
       >
-        <div className="text-sm text-slate-400 mb-2">快速开始</div>
+        <div className="text-sm text-slate-400 mb-2">{t('dashboard.quickStart')}</div>
         <ol className="text-sm space-y-2 list-decimal list-inside text-slate-300">
-          <li>到【模型管理】配置 4 个角色：生成器 / 攻击样本生成器 / 被评测目标 / 裁判（OpenAI 兼容协议）</li>
-          <li>查看【工具集】并按需勾选要传给目标模型的工具（默认全开）</li>
-          <li>到【攻击样本】查看内置红队样本集，或一键生成更多</li>
-          <li>到【运行评测】选择 Prompt + 样本集 + 模型，开始评测</li>
-          <li>评测结束后到【评测报告】查看结果，并基于失败用例【一键优化】Prompt</li>
+          <li>{t('dashboard.step1')}</li>
+          <li>{t('dashboard.step2')}</li>
+          <li>{t('dashboard.step3')}</li>
+          <li>{t('dashboard.step4')}</li>
+          <li>{t('dashboard.step5')}</li>
         </ol>
       </motion.div>
     </div>
