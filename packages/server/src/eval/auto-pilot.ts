@@ -87,7 +87,8 @@ function getEnabledTools(profileIds?: string[]) {
       for (const n of JSON.parse(profile.tool_names || '[]') as string[]) allowedNames.add(n);
     }
   }
-  return allowedNames.size > 0 ? all.filter(t => allowedNames.has(t.function.name)) : all;
+  // Always filter when profile IDs are provided — don't silently expand to all tools
+  return all.filter(t => allowedNames.has(t.function.name));
 }
 
 function getAvailableToolMeta() {

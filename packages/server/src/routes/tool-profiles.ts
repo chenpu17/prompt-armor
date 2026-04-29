@@ -19,10 +19,12 @@ export default async function (app: FastifyInstance) {
   app.post('/api/tool-profiles', async (req: any) => {
     const { name, description = '', tool_names = [] } = req.body || {};
     if (!name) throw app.httpErrors.badRequest('name 为必填项');
+    const normalized = normalizeToolNames(tool_names);
+    if ((JSON.parse(normalized) as string[]).length === 0) throw app.httpErrors.badRequest('工具档案至少需要选择一个工具');
     const id = 'tp-' + nanoid(8);
     db.prepare(
       'INSERT INTO tool_profiles (id,name,description,tool_names,is_builtin,created_at) VALUES (?,?,?,?,?,?)'
-    ).run(id, name, description, normalizeToolNames(tool_names), 0, nowMs());
+    ).run(id, name, description, normalized, 0, nowMs());
     return db.prepare('SELECT * FROM tool_profiles WHERE id = ?').get(id);
   });
 

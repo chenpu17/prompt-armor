@@ -43,8 +43,8 @@ export default async function (app: FastifyInstance) {
     const { title, content, parent_id = null, tags = [], generation_meta = null } = req.body || {};
     if (!content) throw app.httpErrors.badRequest('content required');
     const id = 'p-' + nanoid(8);
-    db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,created_at) VALUES (?,?,?,?,?,?,?)')
-      .run(id, title || '未命名', content, parent_id, generation_meta ? JSON.stringify(generation_meta) : null, JSON.stringify(tags), nowMs());
+    db.prepare('INSERT INTO prompts (id,title,content,parent_id,generation_meta,tags,token_count,created_at) VALUES (?,?,?,?,?,?,?,?)')
+      .run(id, title || '未命名', content, parent_id, generation_meta ? JSON.stringify(generation_meta) : null, JSON.stringify(tags), estimateTokens(content), nowMs());
     return db.prepare('SELECT * FROM prompts WHERE id = ?').get(id);
   });
 
@@ -59,7 +59,7 @@ export default async function (app: FastifyInstance) {
     if (!exists) throw app.httpErrors.notFound();
     const fields: any = {};
     if (typeof req.body?.title === 'string') fields.title = req.body.title.trim() || '未命名';
-    if (typeof req.body?.content === 'string') fields.content = req.body.content;
+    if (typeof req.body?.content === 'string') { fields.content = req.body.content; fields.token_count = estimateTokens(req.body.content); }
     if (Array.isArray(req.body?.tags)) fields.tags = JSON.stringify(req.body.tags);
     if (Object.keys(fields).length === 0) return { ok: true };
     const sets = Object.keys(fields).map(k => `${k} = ?`).join(', ');

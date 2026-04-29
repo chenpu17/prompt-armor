@@ -65,7 +65,8 @@ export default async function (app: FastifyInstance) {
           for (const n of JSON.parse(profile.tool_names || '[]') as string[]) allowedNames.add(n);
         }
       }
-      if (allowedNames.size > 0) tools = allEnabledTools.filter(t => allowedNames.has(t.function.name));
+      // Always filter when profile_ids provided — don't silently fall back to all tools
+      tools = allEnabledTools.filter(t => allowedNames.has(t.function.name));
     }
 
     const evalId = 'e-' + nanoid(10);

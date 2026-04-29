@@ -166,7 +166,8 @@
     "cancel": "取消",
     "save": "保存",
     "presetZhipu": "智谱 GLM",
-    "presetOllama": "Ollama (本地)"
+    "presetOllama": "Ollama (本地)",
+    "apiKeyPlaceholder": "留空以保留现有 Key"
   },
   "dashboard": {
     "title": "LLM 防护提示词工厂",

@@ -29,7 +29,14 @@ export default async function (app: FastifyInstance) {
     const allow = ['name', 'base_url', 'api_key', 'model', 'temperature', 'max_tokens', 'timeout_ms', 'notes'];
     const fields: string[] = [];
     const values: any[] = [];
-    for (const k of allow) if (k in (req.body || {})) { fields.push(`${k} = ?`); values.push(req.body[k]); }
+    for (const k of allow) {
+      if (k in (req.body || {})) {
+        const v = req.body[k];
+        // Skip api_key if empty or still a masked placeholder (****) — don't overwrite real key
+        if (k === 'api_key' && (!v || String(v).includes('****'))) continue;
+        fields.push(`${k} = ?`); values.push(v);
+      }
+    }
     if (!fields.length) return maskKey(db.prepare('SELECT * FROM models WHERE id = ?').get(id));
     values.push(id);
     db.prepare(`UPDATE models SET ${fields.join(', ')} WHERE id = ?`).run(...values);

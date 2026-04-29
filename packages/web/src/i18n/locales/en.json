@@ -166,7 +166,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "presetZhipu": "Zhipu GLM",
-    "presetOllama": "Ollama (Local)"
+    "presetOllama": "Ollama (Local)",
+    "apiKeyPlaceholder": "Leave blank to keep current key"
   },
   "dashboard": {
     "title": "LLM Guard Prompt Factory",

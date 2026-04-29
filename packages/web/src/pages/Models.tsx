@@ -27,8 +27,13 @@ export default function Models() {
 
   async function save() {
     const body = { ...editing };
-    if (editing.id) await api.updateModel(editing.id, body);
-    else await api.createModel(body);
+    if (editing.id) {
+      // Don't overwrite the real key with an empty or masked placeholder
+      if (!body.api_key || body.api_key.includes('****')) delete body.api_key;
+      await api.updateModel(editing.id, body);
+    } else {
+      await api.createModel(body);
+    }
     setEditing(null); reload();
   }
 
@@ -55,7 +60,7 @@ export default function Models() {
                 <div className="text-xs text-slate-500 font-mono mt-0.5">{m.model}</div>
               </div>
               <div className="flex gap-1">
-                <button className="btn-ghost !p-1.5" onClick={() => setEditing({ ...m })}><Edit3 size={14} /></button>
+                <button className="btn-ghost !p-1.5" onClick={() => setEditing({ ...m, api_key: '' })}><Edit3 size={14} /></button>
                 <button className="btn-danger !p-1.5" onClick={async () => { if (confirm(t('models.deleteConfirm'))) { await api.deleteModel(m.id); reload(); } }}><Trash2 size={14} /></button>
               </div>
             </div>
@@ -106,7 +111,7 @@ export default function Models() {
             <div className="space-y-3">
               <Field label={t('models.fieldName')}><input className="input" value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
               <Field label="Base URL"><input className="input font-mono text-xs" value={editing.base_url} onChange={e => setEditing({ ...editing, base_url: e.target.value })} placeholder="https://api.openai.com/v1" /></Field>
-              <Field label="API Key"><input className="input font-mono text-xs" type="password" value={editing.api_key || ''} onChange={e => setEditing({ ...editing, api_key: e.target.value })} placeholder="sk-..." /></Field>
+              <Field label="API Key"><input className="input font-mono text-xs" type="password" value={editing.api_key || ''} onChange={e => setEditing({ ...editing, api_key: e.target.value })} placeholder={editing.id ? t('models.apiKeyPlaceholder') : 'sk-...'} /></Field>
               <Field label={t('models.fieldModel')}><input className="input font-mono" value={editing.model} onChange={e => setEditing({ ...editing, model: e.target.value })} placeholder="gpt-4o-mini" /></Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Temperature"><input className="input" type="number" step="0.1" value={editing.temperature ?? 0.3} onChange={e => setEditing({ ...editing, temperature: Number(e.target.value) })} /></Field>
