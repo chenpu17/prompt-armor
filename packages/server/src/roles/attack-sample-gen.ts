@@ -111,15 +111,9 @@ export async function generateSamplesStream(
   onDelta: (delta: string, totalChars: number) => void
 ): Promise<GeneratedSample[]> {
   const { sys, user } = buildAttackPrompt(input);
-  // Estimate total samples requested to avoid JSON truncation.
-  // Each sample ≈ 150 tokens; add 1500 overhead. Cap at 16000.
-  const catCount = Math.max(input.categories?.length || 3, 3);
-  const estimatedSamples = catCount * (input.count_per_category ?? 5) + (input.benign_count ?? 0);
-  const minTokens = Math.min(16000, Math.max(4096, estimatedSamples * 150 + 1500));
   const full = await chatStream(model, [{ role: 'system', content: sys }, { role: 'user', content: user }], {
     temperature: 0.9,
     response_format: { type: 'json_object' },
-    max_tokens: minTokens,
     timeout_ms: 600000,
     onDelta,
   });

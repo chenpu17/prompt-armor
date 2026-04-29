@@ -47,8 +47,9 @@ export async function chat(
     model: m.model,
     messages,
     temperature: opts.temperature ?? m.temperature ?? 0.3,
-    max_tokens: m.max_tokens ?? 4096,
   };
+  // Only send max_tokens when explicitly configured; let the API use its own default otherwise.
+  if (m.max_tokens && m.max_tokens > 0) body.max_tokens = m.max_tokens;
   if (opts.tools && opts.tools.length) {
     body.tools = opts.tools;
     if (opts.tool_choice) body.tool_choice = opts.tool_choice;
@@ -100,7 +101,6 @@ export interface StreamOpts {
   response_format?: any;
   temperature?: number;
   timeout_ms?: number;
-  max_tokens?: number;
   onDelta?: (delta: string, totalChars: number) => void;
 }
 
@@ -114,9 +114,10 @@ export async function chatStream(
     model: m.model,
     messages,
     temperature: opts.temperature ?? m.temperature ?? 0.3,
-    max_tokens: opts.max_tokens ?? m.max_tokens ?? 4096,
     stream: true,
   };
+  // Only send max_tokens when explicitly configured; let the API use its own default otherwise.
+  if (m.max_tokens && m.max_tokens > 0) body.max_tokens = m.max_tokens;
   if (opts.response_format) body.response_format = opts.response_format;
 
   const ctrl = new AbortController();
