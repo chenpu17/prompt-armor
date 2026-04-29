@@ -141,8 +141,9 @@ export default function Samples() {
       </div>
 
       {genOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="glass p-6 max-w-2xl w-full max-h-[90vh] overflow-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-full flex items-center justify-center p-4">
+          <div className="glass p-6 max-w-2xl w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2"><Sparkles className="text-neon" size={20} />{t('samples.genTitle')}</h2>
               <button className="btn-ghost !p-1.5" onClick={() => setGenOpen(false)}><X size={16} /></button>
@@ -211,6 +212,7 @@ export default function Samples() {
               <button className="btn-ghost" onClick={() => setGenOpen(false)} disabled={busy}>{t('samples.genCancel')}</button>
               <button className="btn" disabled={!genForm.generator_model_id || busy} onClick={genGo}>{busy ? t('samples.genBusy') : t('samples.genSubmit')}</button>
             </div>
+          </div>
           </div>
         </div>
       )}

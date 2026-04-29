@@ -328,7 +328,8 @@
     "failLabel": "未通过",
     "labelProfile": "工具档案（Tool Profile）",
     "profileAll": "全部已启用工具",
-    "tools": "工具"
+    "tools": "工具",
+    "profileSelected": "已选 {{count}} 个档案，合并 {{tools}} 个工具"
   },
   "reports": {
     "title": "评测报告",

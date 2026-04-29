@@ -133,8 +133,9 @@ export default function Prompts() {
       )}
 
       {genOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="glass p-6 max-w-2xl w-full max-h-[85vh] overflow-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-full flex items-center justify-center p-4">
+          <div className="glass p-6 max-w-2xl w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2"><Sparkles className="text-neon" size={20} />{t('prompts.genTitle')}</h2>
               <button className="btn-ghost !p-1.5" onClick={() => setGenOpen(false)}><X size={16} /></button>
@@ -216,6 +217,7 @@ export default function Prompts() {
                 <Sparkles size={16} />{generating ? t('prompts.genBusy') : t('prompts.genSubmit')}
               </button>
             </div>
+          </div>
           </div>
         </div>
       )}

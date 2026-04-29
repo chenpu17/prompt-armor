@@ -32,7 +32,7 @@ export default async function (app: FastifyInstance) {
   });
 
   app.post('/api/evaluations', async (req: any) => {
-    const { prompt_id, sample_set_id, target_model_id, judge_model_id, concurrency = 4, sample_filter, profile_id } = req.body || {};
+    const { prompt_id, sample_set_id, target_model_id, judge_model_id, concurrency = 4, sample_filter, profile_id, profile_ids } = req.body || {};
     const prompt = db.prepare('SELECT * FROM prompts WHERE id = ?').get(prompt_id) as any;
     const setRow = db.prepare('SELECT * FROM sample_sets WHERE id = ?').get(sample_set_id) as any;
     const tgt = db.prepare('SELECT * FROM models WHERE id = ?').get(target_model_id) as any;
@@ -49,21 +49,29 @@ export default async function (app: FastifyInstance) {
       is_attack: !!s.is_attack, category: s.category, severity: s.severity,
     }));
 
-    // Resolve tools: profile → subset of enabled tools; no profile → all enabled
+    // Resolve tools: profile_ids (multi-select union) OR profile_id (legacy) → subset; empty → all enabled
     let allEnabledTools = (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[])
       .map(toToolDef).filter((t): t is NonNullable<ReturnType<typeof toToolDef>> => t !== null);
     let tools = allEnabledTools;
-    if (profile_id) {
-      const profile = db.prepare('SELECT * FROM tool_profiles WHERE id = ?').get(profile_id) as any;
-      if (profile) {
-        const names = new Set(JSON.parse(profile.tool_names || '[]') as string[]);
-        tools = allEnabledTools.filter(t => names.has(t.function.name));
+    // Normalize: support both profile_ids array (new) and profile_id string (legacy)
+    const pids: string[] = Array.isArray(profile_ids) && profile_ids.length > 0
+      ? profile_ids
+      : (profile_id ? [profile_id] : []);
+    if (pids.length > 0) {
+      const allowedNames = new Set<string>();
+      for (const pid of pids) {
+        const profile = db.prepare('SELECT * FROM tool_profiles WHERE id = ?').get(pid) as any;
+        if (profile) {
+          for (const n of JSON.parse(profile.tool_names || '[]') as string[]) allowedNames.add(n);
+        }
       }
+      if (allowedNames.size > 0) tools = allEnabledTools.filter(t => allowedNames.has(t.function.name));
     }
 
     const evalId = 'e-' + nanoid(10);
-    db.prepare('INSERT INTO evaluations (id,prompt_id,sample_set_id,target_model_id,judge_model_id,status,profile_id,created_at) VALUES (?,?,?,?,?,?,?,?)')
-      .run(evalId, prompt_id, sample_set_id, target_model_id, judge_model_id, 'pending', profile_id || null, nowMs());
+    const profileIdsJson = pids.length ? JSON.stringify(pids) : null;
+    db.prepare('INSERT INTO evaluations (id,prompt_id,sample_set_id,target_model_id,judge_model_id,status,profile_id,profile_ids,created_at) VALUES (?,?,?,?,?,?,?,?,?)')
+      .run(evalId, prompt_id, sample_set_id, target_model_id, judge_model_id, 'pending', pids[0] || null, profileIdsJson, nowMs());
 
     const judgeOverrideRow = db.prepare("SELECT value FROM settings WHERE key = 'judge_system_prompt'").get() as any;
     const judgeSystemPromptOverride = judgeOverrideRow?.value || undefined;

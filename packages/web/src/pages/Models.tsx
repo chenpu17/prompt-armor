@@ -83,7 +83,8 @@ export default function Models() {
       </div>
 
       {editing && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-full flex items-center justify-center p-4">
           <div className="glass p-6 max-w-lg w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">{editing.id ? t('models.editTitle') : t('models.addTitle')}</h2>
@@ -116,6 +117,7 @@ export default function Models() {
               <button className="btn-ghost" onClick={() => setEditing(null)}>{t('models.cancel')}</button>
               <button className="btn" onClick={save}><Check size={16} />{t('models.save')}</button>
             </div>
+          </div>
           </div>
         </div>
       )}

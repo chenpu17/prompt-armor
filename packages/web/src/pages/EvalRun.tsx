@@ -14,7 +14,7 @@ export default function EvalRun() {
   const [prompts, setPrompts] = useState<any[]>([]);
   const [sets, setSets] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
-  const [form, setForm] = useState<any>({ prompt_id: '', sample_set_id: '', target_model_id: '', judge_model_id: '', concurrency: 4, profile_id: '' });
+  const [form, setForm] = useState<any>({ prompt_id: '', sample_set_id: '', target_model_id: '', judge_model_id: '', concurrency: 4, profile_ids: [] as string[] });
   const [evalId, setEvalId] = useState<string | null>(paramId || null);
   const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const [items, setItems] = useState<any[]>([]);
@@ -60,18 +60,30 @@ export default function EvalRun() {
             <Selector label={t('eval.labelSampleSet')} value={form.sample_set_id} options={sets.map((s: any) => ({ value: s.id, label: `${s.name}（${s.sample_count}）` }))} onChange={(v: string) => setForm({ ...form, sample_set_id: v })} />
             <Selector label={t('eval.labelTarget')} value={form.target_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, target_model_id: v })} />
             <Selector label={t('eval.labelJudge')} value={form.judge_model_id} options={models.map((m: any) => ({ value: m.id, label: m.name }))} onChange={(v: string) => setForm({ ...form, judge_model_id: v })} />
-            <div>
+            <div className="md:col-span-2">
               <div className="label">{t('eval.labelProfile')}</div>
-              <select className="input" value={form.profile_id} onChange={e => setForm({ ...form, profile_id: e.target.value })}>
-                <option value="">{t('eval.profileAll')}</option>
+              <div className="flex flex-wrap gap-2 mt-1">
                 {profiles.map((p: any) => {
-                  const names = JSON.parse(p.tool_names || '[]');
-                  return <option key={p.id} value={p.id}>{p.name}（{names.length} {t('eval.tools')}）</option>;
+                  const names: string[] = JSON.parse(p.tool_names || '[]');
+                  const on = form.profile_ids.includes(p.id);
+                  return (
+                    <button key={p.id} type="button"
+                      className={`badge cursor-pointer transition-all ${on ? 'badge-dangerous' : 'badge-low'}`}
+                      onClick={() => setForm((f: any) => ({
+                        ...f,
+                        profile_ids: on ? f.profile_ids.filter((x: string) => x !== p.id) : [...f.profile_ids, p.id]
+                      }))}>
+                      {p.name} ({names.length})
+                    </button>
+                  );
                 })}
-              </select>
-              {form.profile_id && profiles.find((p: any) => p.id === form.profile_id)?.description && (
-                <div className="text-[11px] text-slate-500 mt-1">{profiles.find((p: any) => p.id === form.profile_id).description}</div>
-              )}
+                {profiles.length === 0 && <span className="text-xs text-slate-500">{t('eval.profileAll')}</span>}
+              </div>
+              <div className="text-[11px] text-slate-500 mt-1.5">
+                {form.profile_ids.length === 0
+                  ? t('eval.profileAll')
+                  : t('eval.profileSelected', { count: form.profile_ids.length, tools: (() => { const s = new Set<string>(); for (const pid of form.profile_ids) { const p = profiles.find((x:any) => x.id === pid); if (p) for (const n of JSON.parse(p.tool_names||'[]')) s.add(n); } return s.size; })() })}
+              </div>
             </div>
             <div>
               <div className="label">{t('eval.labelConcurrency')}</div>

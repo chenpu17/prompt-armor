@@ -328,7 +328,8 @@
     "failLabel": "Failed",
     "labelProfile": "Tool Profile",
     "profileAll": "All enabled tools",
-    "tools": "tools"
+    "tools": "tools",
+    "profileSelected": "{{count}} profile(s) selected — {{tools}} tools combined"
   },
   "reports": {
     "title": "Eval Reports",

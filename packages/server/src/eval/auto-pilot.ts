@@ -27,7 +27,7 @@ export interface StartAutoRunParams {
   refreshRatio: number;
   initialSetSize: number;
   judgeSystemPromptOverride?: string;
-  profileId?: string;
+  profileIds?: string[];
 }
 
 const stopFlags = new Map<string, boolean>();
@@ -76,14 +76,18 @@ function getJudgeOverride() {
   return row?.value || undefined;
 }
 
-function getEnabledTools(profileId?: string) {
+function getEnabledTools(profileIds?: string[]) {
   const all = (db.prepare('SELECT * FROM tools WHERE enabled = 1').all() as any[])
     .map(toToolDef).filter((t): t is NonNullable<ReturnType<typeof toToolDef>> => t !== null);
-  if (!profileId) return all;
-  const profile = db.prepare('SELECT * FROM tool_profiles WHERE id = ?').get(profileId) as any;
-  if (!profile) return all;
-  const names = new Set(JSON.parse(profile.tool_names || '[]') as string[]);
-  return all.filter(t => names.has(t.function.name));
+  if (!profileIds || profileIds.length === 0) return all;
+  const allowedNames = new Set<string>();
+  for (const pid of profileIds) {
+    const profile = db.prepare('SELECT * FROM tool_profiles WHERE id = ?').get(pid) as any;
+    if (profile) {
+      for (const n of JSON.parse(profile.tool_names || '[]') as string[]) allowedNames.add(n);
+    }
+  }
+  return allowedNames.size > 0 ? all.filter(t => allowedNames.has(t.function.name)) : all;
 }
 
 function getAvailableToolMeta() {
@@ -237,7 +241,7 @@ export async function startAutoRun(p: StartAutoRunParams) {
         evaluationId: evalId,
         promptContent: promptRow?.content || '',
         samples: samplesForEval,
-        tools: getEnabledTools(p.profileId),
+        tools: getEnabledTools(p.profileIds),
         targetModel: p.target,
         judgeModel: p.judge,
         judgeSystemPromptOverride: p.judgeSystemPromptOverride,

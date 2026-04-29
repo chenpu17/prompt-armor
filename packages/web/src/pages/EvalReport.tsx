@@ -134,7 +134,8 @@ export default function EvalReport() {
       </GlowCard>
 
       {optOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-full flex items-center justify-center p-4">
           <div className="glass p-6 max-w-lg w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2"><Wand2 className="text-neon" size={20} />{t('reports.optTitle')}</h2>
@@ -158,6 +159,7 @@ export default function EvalReport() {
               <button className="btn-ghost" onClick={() => setOptOpen(false)}>{t('reports.optCancel')}</button>
               <button className="btn" disabled={!optForm.generator_model_id || busy} onClick={optimize}>{busy ? t('reports.optBusy') : t('reports.optSubmit')}</button>
             </div>
+          </div>
           </div>
         </div>
       )}

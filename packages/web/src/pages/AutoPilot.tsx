@@ -63,7 +63,7 @@ export default function AutoPilot() {
     pass_threshold: 0.95,
     refresh_ratio: 0.3,
     initial_set_size: 24,
-    profile_id: '',
+    profile_ids: [] as string[],
   });
 
   async function reloadRuns() {
@@ -107,7 +107,7 @@ export default function AutoPilot() {
       pass_threshold: Number(form.pass_threshold) || 0.95,
       refresh_ratio: Number(form.refresh_ratio) || 0.3,
       initial_set_size: Number(form.initial_set_size) || 24,
-      profile_id: form.profile_id || undefined,
+      profile_ids: form.profile_ids?.length > 0 ? form.profile_ids : undefined,
     };
     try {
       const r = await api.startAutoRun(body);
@@ -247,16 +247,27 @@ function NewRunForm({ models, profiles, form, setForm, onStart }: any) {
             onChange={e => setForm({ ...form, initial_set_size: e.target.value })} />
         </Field>
         <Field label={t('auto.fieldProfile')} hint={t('auto.fieldProfileHint')}>
-          <select className="input" value={form.profile_id} onChange={e => setForm({ ...form, profile_id: e.target.value })}>
-            <option value="">{t('auto.profileAll')}</option>
+          <div className="flex flex-wrap gap-2 mt-1">
             {profiles.map((p: any) => {
-              const names = JSON.parse(p.tool_names || '[]');
-              return <option key={p.id} value={p.id}>{p.name}（{names.length} {t('eval.tools')}）</option>;
+              const names: string[] = JSON.parse(p.tool_names || '[]');
+              const on = form.profile_ids.includes(p.id);
+              return (
+                <button key={p.id} type="button"
+                  className={`badge cursor-pointer transition-all ${on ? 'badge-dangerous' : 'badge-low'}`}
+                  onClick={() => setForm((f: any) => ({
+                    ...f,
+                    profile_ids: on ? f.profile_ids.filter((x: string) => x !== p.id) : [...f.profile_ids, p.id]
+                  }))}>
+                  {p.name} ({names.length})
+                </button>
+              );
             })}
-          </select>
-          {form.profile_id && profiles.find((p: any) => p.id === form.profile_id)?.description && (
-            <div className="text-[11px] text-slate-500 mt-1">{profiles.find((p: any) => p.id === form.profile_id).description}</div>
-          )}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1.5">
+            {form.profile_ids.length === 0
+              ? t('auto.profileAll')
+              : t('eval.profileSelected', { count: form.profile_ids.length, tools: (() => { const s = new Set<string>(); for (const pid of form.profile_ids) { const p = profiles.find((x:any) => x.id === pid); if (p) for (const n of JSON.parse(p.tool_names||'[]')) s.add(n); } return s.size; })() })}
+          </div>
         </Field>
       </div>
       <div className="mt-6 flex justify-end">
