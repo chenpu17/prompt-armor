@@ -100,6 +100,7 @@ export interface StreamOpts {
   response_format?: any;
   temperature?: number;
   timeout_ms?: number;
+  max_tokens?: number;
   onDelta?: (delta: string, totalChars: number) => void;
 }
 
@@ -113,7 +114,7 @@ export async function chatStream(
     model: m.model,
     messages,
     temperature: opts.temperature ?? m.temperature ?? 0.3,
-    max_tokens: m.max_tokens ?? 4096,
+    max_tokens: opts.max_tokens ?? m.max_tokens ?? 4096,
     stream: true,
   };
   if (opts.response_format) body.response_format = opts.response_format;

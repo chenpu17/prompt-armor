@@ -431,7 +431,12 @@
     "logIterStart": "▶ Entering round {{no}}",
     "logIterDone": "✓ Round {{no}} done — composite {{score}}% · attack {{attack}}% · benign {{benign}}%",
     "logStopped": "Stopped by user at round {{no}}",
-    "logDone": "🏆 All done · best score {{best}}% · {{iters}} rounds total"
+    "logDone": "🏆 All done · best score {{best}}% · {{iters}} rounds total",
+    "bizCtxDefault": "An AI assistant with tool-calling capabilities.",
+    "alertNoModel": "Please configure and select a model first",
+    "fieldEarlyStop": "Early Stop Patience",
+    "fieldEarlyStopHint": "Stop after N stagnant rounds",
+    "errorDetail": "Failure Reason"
   },
   "categories": {
     "filesystem.read": "File Read",

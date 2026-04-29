@@ -23,4 +23,12 @@ const schemaPath = schemaPaths.find(p => existsSync(p))!;
 const schema = readFileSync(schemaPath, 'utf-8');
 db.exec(schema);
 
+// Incremental migrations for columns added after initial schema
+const migrations: string[] = [
+  `ALTER TABLE auto_runs ADD COLUMN error_message TEXT`,
+];
+for (const sql of migrations) {
+  try { db.exec(sql); } catch { /* column already exists */ }
+}
+
 export function nowMs() { return Date.now(); }

@@ -431,7 +431,12 @@
     "logIterStart": "▶ 进入第 {{no}} 轮",
     "logIterDone": "✓ 第 {{no}} 轮完成 — 综合分 {{score}}% · 攻击通过 {{attack}}% · 正常 {{benign}}%",
     "logStopped": "用户已停止于第 {{no}} 轮",
-    "logDone": "🏆 全部完成 · 最佳分 {{best}}% · 共 {{iters}} 轮"
+    "logDone": "🏆 全部完成 · 最佳分 {{best}}% · 共 {{iters}} 轮",
+    "bizCtxDefault": "一个接入了工具调用的 AI 助手。",
+    "alertNoModel": "请先配置并选择模型",
+    "fieldEarlyStop": "早停耐心",
+    "fieldEarlyStopHint": "连续几轮无改善则停止",
+    "errorDetail": "失败原因"
   },
   "categories": {
     "filesystem.read": "文件读取",

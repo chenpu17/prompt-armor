@@ -20,6 +20,7 @@ interface RunRow {
   best_prompt_title: string | null;
   iter_count: number;
   created_at: number;
+  error_message?: string | null;
 }
 
 function getPhaseLabel(t: (k: string) => string): Record<string, string> {
@@ -386,6 +387,13 @@ function RunDetail({ runId, onChanged }: { runId: string; onChanged: () => void 
           <Stat label={t('auto.statThreshold')} value={`${(run.pass_threshold * 100).toFixed(0)}%`} />
           <Stat label={t('auto.statStatus')} value={statusText(run.status, t)} />
         </div>
+
+        {run.status === 'failed' && run.error_message && (
+          <div className="mt-3 rounded-lg bg-rose-500/10 border border-rose-500/20 px-4 py-2 text-xs text-rose-300 flex gap-2 items-start">
+            <XCircle size={14} className="shrink-0 mt-0.5" />
+            <div><span className="font-semibold mr-1">{t('auto.errorDetail')}:</span>{run.error_message}</div>
+          </div>
+        )}
 
         <div className="mt-4">
           <div className="h-2 rounded-full bg-white/5 overflow-hidden">

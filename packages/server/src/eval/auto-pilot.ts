@@ -317,8 +317,9 @@ export async function startAutoRun(p: StartAutoRunParams) {
     log('done', { best_prompt_id: bestPromptId, best_score: bestScore, iterations: iterNo - 1, score_history: scoreHistory, best_eval_id: bestEvalId });
     stopFlags.delete(p.runId);
   } catch (e: any) {
-    update({ status: 'failed', finished_at: nowMs() });
-    log('error', { message: String(e?.message || e) });
+    const msg = String(e?.message || e);
+    update({ status: 'failed', finished_at: nowMs(), error_message: msg });
+    log('error', { message: msg });
     stopFlags.delete(p.runId);
   }
 }

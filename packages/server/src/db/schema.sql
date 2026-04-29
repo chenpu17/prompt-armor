@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS auto_runs (
   best_prompt_id TEXT,
   best_score REAL,
   config_json TEXT,
+  error_message TEXT,
   created_at INTEGER NOT NULL,
   finished_at INTEGER
 );
