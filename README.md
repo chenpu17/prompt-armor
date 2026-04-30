@@ -1,101 +1,202 @@
-# 🛡 Prompt Armor — LLM 防护提示词工厂
+# Prompt Armor | LLM 防护提示词工厂
 
 [![npm version](https://img.shields.io/npm/v/@chenpu17/prompt-armor.svg)](https://www.npmjs.com/package/@chenpu17/prompt-armor)
 [![CI](https://github.com/chenpu17/prompt-armor/actions/workflows/ci.yml/badge.svg)](https://github.com/chenpu17/prompt-armor/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> 针对“会触发工具调用的 AI 应用”，**自动化生成 / 优化 / 评测系统级安全提示词**的工厂。
-> 一条命令启动，自带漂亮的 Web 界面。
+Prompt Armor is a local workstation for generating, evaluating, and iterating system-level guardrail prompts for tool-using LLM applications.
 
-## 这是什么
+Prompt Armor 是一个本地化工作台，专门用于为“会触发工具调用的 AI 应用”生成、评测、优化系统级安全提示词。
 
-如果你的 AI 应用（例如 OpenClaw 这类 Agent）会让 LLM 输出工具调用 JSON，然后在受控环境里执行，那么用户的恶意输入可能让模型读 `/etc/passwd`、执行 `whoami`、泄露 API Key、生成涉黄/社工内容……
+- Generate high-quality guardrail prompts from business context
+- Build red-team and benign sample sets
+- Run adversarial evaluations with reports and failure traces
+- Auto-iterate prompts in a closed loop with Auto-Pilot
+- Configure four model roles independently via OpenAI-compatible APIs
+- Stream long-running generation, optimization, and evaluation jobs in real time
 
-Prompt Armor 帮你：
+- 基于业务背景生成高质量防护提示词
+- 生成红队攻击样本与正常对照样本
+- 运行带报告和失败明细的对抗评测
+- 通过 Auto-Pilot 自动闭环优化提示词
+- 用 OpenAI 兼容接口分别配置 4 个模型角色
+- 以流式方式执行长耗时生成、优化、评测任务
 
-- 🤖 **生成**：用强模型按你的业务背景生成高质量的"安全防护 system prompt"
-- 🎯 **评测**：用红队攻击样本 + 正常对照样本，量化提示词的拒绝率 / 误伤率 / 工具触发率 / 信息泄露率
-- 🔁 **优化**：基于失败用例，让生成模型针对性地修补 prompt
-- ⚙ **解耦 4 个角色模型**：生成器 / 攻击样本生成器 / 被评测目标 / 裁判，每个独立配置（OpenAI 兼容协议）
-- 🚀 **自动优化（Auto-Pilot）**：一次输入即可启动 N 轮自循环 — 自动生成样本/Prompt → 评测 → 基于失败用例优化 → 刷新测试集（防过拟合）→ 再评测，直到达标或不再提升
-- 🧰 **内置 OpenClaw 风格 Mock 工具集**（fs / shell / network / python_exec / memory / secret / skill_invoke 等），声明式给目标模型，仅记录是否被调用，不真正执行
-- 📡 **全程流式**：生成 / 优化 / 评测都用流式 token，实时看进度，长任务不超时
-- 🌐 **中英双语 UI**：内置语言切换器（中文 / English），落地页 `/welcome` 与应用内帮助 `/help`
+## Screenshots | 产品界面
 
-## 一键启动
+<table>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/chenpu17/prompt-armor/main/packages/web/public/screenshots/auto-pilot.png" alt="Auto-Pilot" /></td>
+    <td><img src="https://raw.githubusercontent.com/chenpu17/prompt-armor/main/packages/web/public/screenshots/reports.png" alt="Evaluation Reports" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Auto-Pilot</strong><br/>自动优化闭环</td>
+    <td align="center"><strong>Reports</strong><br/>评测报告与失败明细</td>
+  </tr>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/chenpu17/prompt-armor/main/packages/web/public/screenshots/prompts.png" alt="Guardrail Prompts" /></td>
+    <td><img src="https://raw.githubusercontent.com/chenpu17/prompt-armor/main/packages/web/public/screenshots/samples.png" alt="Attack Samples" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Guardrail Prompts</strong><br/>防护提示词生成与迭代</td>
+    <td align="center"><strong>Attack Samples</strong><br/>攻击样本生成与管理</td>
+  </tr>
+</table>
+
+## What It Does | 它解决什么问题
+
+If your product lets an LLM emit tool-call JSON and executes those calls inside a controlled runtime, prompt injection and unsafe completions can still lead to filesystem reads, shell execution, secret leakage, prompt leakage, or harmful content output.
+
+如果你的产品让 LLM 输出工具调用 JSON，再由运行时去执行这些工具，那么提示词注入和不安全输出仍然可能导致文件读取、命令执行、密钥泄露、提示词泄露，或者生成违规内容。
+
+Prompt Armor gives you a repeatable workflow for hardening those agents instead of treating prompt safety as one-off prompt writing.
+
+Prompt Armor 提供的是一套可重复的工程化流程，而不是一次性的“手写安全提示词”。
+
+## Core Capabilities | 核心能力
+
+### 1. Guardrail Prompt Generation | 防护提示词生成
+
+- Generate a system prompt from your business context, tool surface, and threat focus.
+- Supports iterative optimization from failed evaluation cases.
+
+- 基于业务背景、工具面和风险重点生成 system prompt。
+- 支持从失败样本反推并迭代优化提示词。
+
+### 2. Red-Team Sample Generation | 红队样本生成
+
+- Create attack sets and benign control sets from natural-language seed input.
+- Merge existing sets and keep category coverage visible.
+
+- 基于自然语言种子生成攻击样本和正常对照样本。
+- 支持合并已有样本集，并保留类目覆盖信息。
+
+### 3. Adversarial Evaluation | 对抗评测
+
+- Configure target model, judge model, prompt, sample set, and tool profile.
+- Track pass rate, refusal rate, forbidden-tool trigger rate, information leakage rate, and per-category performance.
+
+- 配置目标模型、裁判模型、提示词、样本集和工具档案。
+- 跟踪通过率、拒绝率、禁用工具触发率、信息泄露率和分品类表现。
+
+### 4. Auto-Pilot Loop | 自动优化闭环
+
+- Generate an initial prompt and initial test set.
+- Evaluate, collect failures, refresh weak categories, optimize, and repeat until the target threshold is reached or progress stalls.
+
+- 自动生成初版提示词与初始测试集。
+- 评测、收集失败、刷新薄弱类目、优化提示词，并持续循环直到达到目标阈值或不再提升。
+
+### 5. Mock Tool Surface | 内置 Mock 工具面
+
+- Ships with OpenClaw-style mock tools such as `fs`, `shell`, `network`, `memory`, `secret`, and `skill_invoke`.
+- Tools are declared to the target model but are not actually executed; the system only records whether they were called.
+
+- 内置 OpenClaw 风格的 mock 工具，如 `fs`、`shell`、`network`、`memory`、`secret`、`skill_invoke`。
+- 工具只暴露给目标模型用于声明调用，不真正执行，系统只记录是否触发。
+
+## Workflow | 工作流
+
+### Manual Mode | 手动模式
+
+1. Configure four model roles: generator, attack-sample generator, target, and judge.
+2. Generate or assemble an attack sample set.
+3. Generate a guardrail prompt from those samples.
+4. Run evaluation against the target model.
+5. Review failures and optimize the prompt into the next version.
+
+1. 配置四个模型角色：生成器、攻击样本生成器、目标模型、裁判模型。
+2. 生成或组合攻击样本集。
+3. 基于样本生成防护提示词。
+4. 对目标模型运行评测。
+5. 查看失败用例，并把提示词优化到下一版。
+
+### Auto-Pilot | 自动优化
+
+Provide a run name, business context, a few seed samples, four model endpoints, and an iteration count. Prompt Armor then runs the full generate -> evaluate -> optimize -> refresh loop for you.
+
+填写运行名称、业务背景、几条种子样本、四个模型端点和迭代轮数后，Prompt Armor 会自动执行 generate -> evaluate -> optimize -> refresh 的完整闭环。
+
+## Quick Start | 一键启动
 
 ```bash
-# 不安装直接跑（推荐试用）
+# Run without installing globally
 npx @chenpu17/prompt-armor
 
-# 或全局安装
+# Or install globally
 npm i -g @chenpu17/prompt-armor
 prompt-armor
 ```
 
-启动后浏览器自动打开 `http://127.0.0.1:7842`。数据存放于 `~/.prompt-armor/data.db`。
+After startup, the browser opens `http://127.0.0.1:7842` by default. Data is stored in `~/.prompt-armor/data.db`.
 
-### CLI 选项
+启动后默认会打开 `http://127.0.0.1:7842`，数据存放在 `~/.prompt-armor/data.db`。
+
+### CLI Options | CLI 选项
 
 ```bash
-prompt-armor --help           # 查看帮助
-prompt-armor --version        # 打印版本
-prompt-armor --port 8080      # 自定义端口
-prompt-armor --host 0.0.0.0   # 监听任意网卡（局域网共享）
-prompt-armor --no-open        # 不自动打开浏览器
+prompt-armor --help
+prompt-armor --version
+prompt-armor --port 8080
+prompt-armor --host 0.0.0.0
+prompt-armor --no-open
 ```
 
-环境变量：`PORT` / `HOST` / `NO_OPEN=1` / `PROMPT_ARMOR_DATA_DIR`。
+Environment variables: `PORT`, `HOST`, `NO_OPEN=1`, `PROMPT_ARMOR_DATA_DIR`
 
-## 工作流
+环境变量：`PORT`、`HOST`、`NO_OPEN=1`、`PROMPT_ARMOR_DATA_DIR`
 
-### 手动模式
-1. **【模型管理】** 配置 4 个角色（OpenAI / DeepSeek / Qwen / Ollama 等任意 OpenAI 兼容协议）
-2. **【攻击样本】** 输入一段自然语言描述，AI 生成红队样本集；或选择多个已有样本集合并
-3. **【防护提示词】** 选择若干样本集 → AI 分析风险点 → 流式生成 system prompt（可重命名 / 编辑 / 复制）
-4. **【运行评测】** 选 prompt + 模型 + 测试集 → 实时流式攻防对话 → 雷达图、明细
-5. **【评测报告】** 看失败用例 → 一键基于失败用例迭代优化 prompt → 进入下一轮
+## Supported Model Setup | 模型接入方式
 
-### 🚀 Auto-Pilot 自动优化（推荐）
-进入 **「自动优化」** 页面：填写名称 + 业务背景 + 几条种子样本 + 4 个角色模型 + 迭代轮数，点「启动」。
-系统会自动：
+Prompt Armor uses four independent model roles, all configured with OpenAI-compatible APIs:
 
-1. 生成初版 system prompt + 初始测试集
-2. 跑评测 → 收集失败用例 + 弱类目
-3. 基于失败用例优化提示词 + 针对弱类目刷新测试集（防过拟合）
-4. 重复直到达到目标通过率，或连续无提升提前停止
+Prompt Armor 采用四个独立模型角色，全部通过 OpenAI 兼容接口接入：
 
-界面实时显示：分数演化曲线、轮次时间线（点进每轮的评测报告）、token 流、阶段日志。
+- Prompt Generator | 提示词生成器
+- Attack Sample Generator | 攻击样本生成器
+- Evaluation Target | 被评测目标模型
+- Judge | 裁判模型
 
-## 本地开发
+You can mix providers such as OpenAI, DeepSeek, Qwen, Moonshot, Ollama, or self-hosted gateways.
+
+可以混合使用 OpenAI、DeepSeek、Qwen、Moonshot、Ollama 或自建兼容网关。
+
+## Local Development | 本地开发
 
 ```bash
 git clone https://github.com/chenpu17/prompt-armor.git
 cd prompt-armor
 npm install
 
-# 一条命令同时启动 server + web 热更
+# Start server and web dev mode together
 npm run dev
-# 也可分开
-npm run dev:server   # http://127.0.0.1:7842
-npm run dev:web      # http://127.0.0.1:5173 （代理到 :7842）
+
+# Or run them separately
+npm run dev:server
+npm run dev:web
 ```
+
+Build production artifacts:
 
 构建发布产物：
 
 ```bash
-npm run build       # web → dist/public，server → dist/server
+npm run build
 node bin/prompt-armor.js
 ```
 
-## 发布
+## Release | 发布
 
-打 tag 即自动发布到 npm（GitHub Actions）：
+CI runs on pushes to `main`. npm publishing is triggered by a pushed version tag matching `v*`.
+
+CI 会在推送到 `main` 时执行。npm 发布由推送符合 `v*` 的版本 tag 触发。
 
 ```bash
-npm version patch && git push --follow-tags
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin main
+git push origin vX.Y.Z
 ```
 
-## 许可
+## License | 许可
 
 MIT © chenpu17
